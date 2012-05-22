@@ -8,8 +8,8 @@ load("/home/sneumann/tex/papers/2009tandemms/R/acquisitionCYP2011.Rdata")
 ##
 ## Load manual annotation, remove CAMERA-only annotation
 ##
-#esm3.orig <- read.csv("11306_2012_401_MOESM3_ESM.csv", skip=5, stringsAsFactors=FALSE)
-esm3.orig <- read.csv("Supplemental_S6_compound_annotation.csv", skip=5, stringsAsFactors=FALSE)
+esm3.orig <- read.csv("11306_2012_401_MOESM3_ESM.csv", skip=5, stringsAsFactors=FALSE)
+#esm3.orig <- read.csv("Supplemental_S6_compound_annotation.csv", skip=5, stringsAsFactors=FALSE)
 esm3 <- esm3.orig[sapply(esm3.orig[,"ion.type.1"], function(x) nchar(x)>0, USE.NAMES=FALSE), ]
 
 ##
