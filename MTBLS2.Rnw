@@ -12,7 +12,7 @@
 \SweaveOpts{concordance=TRUE}
 
 <<LibraryPreload>>=
-library(rISAtab)
+library(ISA2R)
 library(xcms)
 library(CAMERA)
 library(Rdisop)
@@ -28,19 +28,19 @@ An ISAtab archive will contain the metadata description in
 several tab-separated files. (One of) the assay files contains the column 
 with the names of the mass spectral raw data files in one of the above formats. 
 
-With the combination of rISA and XCMS, we can convert the MS raw data 
+With the combination of ISA2R and XCMS, we can convert the MS raw data 
 in an ISAtab archive into an xcmsSet:
 
 <<PeakPicking>>=
 
-ISAmtbls2 <- risatab(path = ".", 
-                  method="centWave", prefilter=c(3,200),
-                  snthr=5, verbose.columns=T,
-                  ppm=25, scanrange=c(0,2900),
-                  peakwidth=c(5,12),
-                  nSlaves=2)
+ISAmtbls2 = isatab2bioc()
 
-mtbls2Set <- ISAmtbls2$data$isa1
+mtbls2Set = processAssayTypeMS(ISAmtbls2,"a_mtbl2_metabolite profiling_mass spectrometry.txt",
+                               method="centWave", prefilter=c(3,200),
+                               snthr=5, verbose.columns=T,
+                               ppm=25, scanrange=c(0,2900),
+                               peakwidth=c(5,12),
+                               nSlaves=2)
 
 mtbls2Set
 
@@ -118,8 +118,7 @@ This report can now be saved as ``Metabolite Assignment File''
 ## Alejandra: This we should get from the ISAmtbls2 read in above!
 ## 
 
-a.isa <- read.delim("a_mtbl2_metabolite profiling_mass spectrometry.txt", stringsAsFactors=FALSE)
-a.samples <- a.isa$Sample.Name
+a.samples <- ISAmtbls2$samples_per_assay_filename$"a_mtbl2_metabolite profiling_mass spectrometry.txt"
 
 ##
 ## These columns are defined by mzTab
