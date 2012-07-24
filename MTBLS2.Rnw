@@ -15,7 +15,7 @@
 library(ISA2R)
 library(xcms)
 library(CAMERA)
-library(Rdisop)
+
 @
 
 Since 2006, the Bioconductor package XCMS provides a rich set of
@@ -33,12 +33,13 @@ in an ISAtab archive into an xcmsSet:
 
 <<PeakPicking>>=
 
-ISAmtbls2 = isatab2bioc()
+ISAmtbls2 <- isatab2bioc()
 
-mtbls2Set = processAssayTypeMS(ISAmtbls2,"a_mtbl2_metabolite profiling_mass spectrometry.txt",
+mtbls2Set <- processAssayTypeMS(ISAmtbls2,"a_mtbl2_metabolite profiling_mass spectrometry.txt",
                                method="centWave", prefilter=c(3,200),
                                snthr=5, verbose.columns=T,
-                               ppm=25, scanrange=c(0,2900),
+#                               ppm=25, scanrange=c(0,2900),
+                               ppm=25, scanrange=c(2000,2100),
                                peakwidth=c(5,12),
                                nSlaves=2)
 
