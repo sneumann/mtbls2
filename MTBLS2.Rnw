@@ -8,6 +8,14 @@
 %%\VignettePackage{rISA}
 \documentclass[12pt]{article}
 \usepackage{hyperref}
+
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\textit{#1}}}
+\newcommand{\Rfunarg}[1]{{\textit{#1}}}
+
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 
@@ -23,18 +31,18 @@ library(CAMERA)
 
 @
 
-Since 2006, the Bioconductor package XCMS provides a rich set of
-algorithms for mass spectrometry data processing. Typically, XCMS will
-create an xcmsSet object from several raw data files in a set of
-assays, which are obtained from the samples in the study.  
+Since 2006, the Bioconductor package \Rpackage{xcms} provides a rich set of
+algorithms for mass spectrometry data processing. Typically, \Rpackage{xcms} will
+create an \Rclass{xcmsSet} object from several raw data files in an assay,
+which are obtained from the samples in the study.  
 Allowed raw data formats are netCDF, mzData, mzXML and mzML.
 
 An ISAtab archive will contain the metadata description in 
-several tab-separated files. (One of) the assay files contains the column 
-with the names of the mass spectral raw data files in one of the above formats. 
+several tab-separated files. (One of) the assay files contains the column ``Raw Spectral Data File``
+with the paths to the mass spectral raw data files in one of the above formats. 
 
-With the combination of ISA2R and XCMS, we can convert the MS raw data 
-in an ISAtab archive into an xcmsSet:
+With the combination of \Rpackage{ISA2R} and \Rpackage{xcms}, we can convert the MS raw data 
+in an ISAtab archive into an \Rclass{xcmsSet}:
 
 <<PeakPicking, cache=true>>=
 
@@ -54,18 +62,8 @@ mtbls2Set
 
 In the following steps, we perform a grouping. Because the UPLC system used here 
 has very stable retention times, we just use the retention time correction step 
-as quality control of the raw data. After that, fillPeaks() will integrate 
-the raw data for features, which were not detected in some of the samples.
-
-The final xcmsSet represents a rectangular matrix of mass spectral features,
-which were detected across the samples. The dimensionality is M x N,
-where M denotes the number of samples in the assay, and N the number
-of features grouped across the samples. Several options exist to
-quantify the individual intensities. For each feature,
-additional attributes are available, such as the minimum/maximum and
-average retenion time and m/z values. 
-These attributes and the intensity matrix could already be exported to conform 
-to the specification for the mzTab format. 
+as quality control of the raw data. After that, \Rmethod{fillPeaks()} will integrate 
+the raw data for those features, which were not detected in some of the samples.
 
 <<RTcheckandGroup, cache=true>>=
 mtbls2Set <- group(mtbls2Set, minfrac=0.75, bw=2)
@@ -74,14 +72,22 @@ mtbls2Set <- fillPeaks(mtbls2Set)
 
 @
 
+The final \Rclass{xcmsSet} represents a rectangular matrix of mass spectral features,
+which were detected across the samples. The dimensionality is $M \times N$,
+where $M$ denotes the number of samples in the assay, and $N$ the number
+of features grouped across the samples. Several options exist to
+quantify the individual intensities. For each feature,
+additional attributes are available, such as the minimum/maximum and
+average retenion time and m/z values. 
+These attributes and the intensity matrix could already be exported to conform 
+to the specification for the mzTab format. 
+
 In a typical mass spectrometry metabolomics workflow, the features
-detected by XCMS are further processed by CAMERA, another Bioconductor
-package. CAMERA provides several algorithms to determine which
+detected by \Rpackage{xcms} are further processed by \Rpackage{CAMERA}, another Bioconductor
+package. C\Rpackage{AMERA} provides several algorithms to determine which
 features originate from a single metabolite, and performs the
 annotation of isotopic peaks and ion species such as adducts, cluster
-ions or common neutral losses. These annotations can also be added to
-the metabolite assignment file to specify the ``charge'' and
-``modification'' 
+ions or common neutral losses. 
 
 <<CAMERA annotation and Stats, cache=true>>=
 
@@ -115,16 +121,31 @@ an <- findAdducts(an,
 
 @ 
 
-This report can now be saved as ``Metabolite Assignment File'', which is modelled after the mzTab 
-specification\footnote{\url{http://www.psidev.info/index.php?q=node/80}}. Here, we use 
+These annotations can also be added to
+the metabolite assignment file to specify the ``charge'' and
+``modification''. Here, we use 
 the m/z and retention of the xcmsSet groups. As intensities, we can use any of the 
-alternative quantification approaches from groupval(). From CAMERA, we obtain the charge, 
-deduced from the isotopic pattern. Many of the other mzTab columns are left empty.
+alternative quantification approaches from \Rmethod{groupval()}. From \Rpackage{CAMERA}, we obtain the charge, 
+deduced from the isotopic pattern. 
 
-Finally, the constructed dataframe is written to a CSV file. If for some of the masses additional identification information was obtained, e.g. through MS/MS measurements, this information can be added after
-the automated xcms and CAMERA pipeline.
+<<collect, cache=true>>=
 
-<<export>>=
+##
+## Get annotated peaklist
+##
+
+pl <- getPeaklist(an)
+
+charge <- sapply(an@isotopes, function(x) {ifelse( length(x) > 0, x$charge, NA) })
+abundance <- groupval(an@xcmsSet, value="into")
+
+@ 
+
+This report can now be saved as ``Metabolite Assignment File'', which is modelled after the mzTab 
+specification\footnote{\url{http://www.psidev.info/index.php?q=node/80}}. 
+Many of the other mzTab columns are left empty.
+
+<<assembleMAF, chache=true>>=
 
 ##
 ## load ISA assay files
@@ -150,17 +171,10 @@ maf.std.colnames <- c("identifier", "chemical_formula", "description",
 all.colnames <- c(maf.std.colnames, a.samples)
 
 ##
-## Get preprocessed data
-##
-
-pl <- getPeaklist(an)
-charge <- sapply(an@isotopes, function(x) {ifelse( length(x) > 0, x$charge, NA) })
-l <- nrow(pl)
-abundance <- groupval(an@xcmsSet, value="into")
-
-##
 ## Now assemble new maf
 ##
+
+l <- nrow(pl)
 
 maf <- data.frame(identifier = character(l), 
                   chemical_formula = character(l), 
@@ -186,6 +200,14 @@ maf <- data.frame(identifier = character(l),
 
 maf_character <- apply(maf, 2, as.character)
 
+@ 
+
+Finally, the constructed dataframe is written to a CSV file. If for
+some of the masses additional identification information was obtained,
+e.g. through MS/MS measurements, this information can be added after
+the automated xcms and CAMERA pipeline.
+
+<<export>>=
 ##
 ## Alejandra: Here we need to add the *_maf.csv to the ISAmtbls2 assay file.
 ## We need to ask Metabolights whether it is required to quote the numbers, 
