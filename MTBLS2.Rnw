@@ -3,13 +3,18 @@
 % likely to be overwritten.
 %
 %\VignetteIndexEntry{MTBLS2 Preprocessing and Analysis with xcms}
-%\VignetteDepends{xcms}
-%\VignetteKeywords{preprocess, analysis, alignment}
-%%\VignettePackage{MetShot}
+%\VignetteDepends{xcms,CAMERA}
+%\VignetteKeywords{preprocess, analysis, alignment, mass spectrometry}
+%%\VignettePackage{rISA}
 \documentclass[12pt]{article}
-
+\usepackage{hyperref}
 \begin{document}
 \SweaveOpts{concordance=TRUE}
+
+\title{MTBLS2 Processing and Analysis with xcms, CAMERA and export to Metabolights}
+\author{Kenneth Haug \and Reza M. Salek \and Pablo Conesa \and Mark Williams \and Mark Rijnbeek \and Paula de Matos \and  Eamonn Maguire \and Tejasvi Mahendraker \and Steffen Neumann \and Philippe Rocca-Serra \and Susanna-Assunta Sansone \and Julian L. Griffin \and Christoph Steinbeck}
+\date{\today}
+\maketitle
 
 <<LibraryPreload>>=
 library(ISA2R)
@@ -31,7 +36,7 @@ with the names of the mass spectral raw data files in one of the above formats.
 With the combination of ISA2R and XCMS, we can convert the MS raw data 
 in an ISAtab archive into an xcmsSet:
 
-<<PeakPicking>>=
+<<PeakPicking, cache=true>>=
 
 ISAmtbls2 <- isatab2bioc()
 
@@ -62,7 +67,7 @@ average retenion time and m/z values.
 These attributes and the intensity matrix could already be exported to conform 
 to the specification for the mzTab format. 
 
-<<RTcheckandGroup>>=
+<<RTcheckandGroup, cache=true>>=
 mtbls2Set <- group(mtbls2Set, minfrac=0.75, bw=2)
 retcor(mtbls2Set, plottype="mdevden")
 mtbls2Set <- fillPeaks(mtbls2Set)
@@ -78,7 +83,7 @@ ions or common neutral losses. These annotations can also be added to
 the metabolite assignment file to specify the ``charge'' and
 ``modification'' 
 
-<<CAMERA annotation and Stats>>=
+<<CAMERA annotation and Stats, cache=true>>=
 
 an <- xsAnnotate(mtbls2Set,
                  sample=seq(1,length(sampnames(mtbls2Set))),
@@ -110,7 +115,14 @@ an <- findAdducts(an,
 
 @ 
 
-This report can now be saved as ``Metabolite Assignment File''
+This report can now be saved as ``Metabolite Assignment File'', which is modelled after the mzTab 
+specification\footnote{\url{http://www.psidev.info/index.php?q=node/80}}. Here, we use 
+the m/z and retention of the xcmsSet groups. As intensities, we can use any of the 
+alternative quantification approaches from groupval(). From CAMERA, we obtain the charge, 
+deduced from the isotopic pattern. Many of the other mzTab columns are left empty.
+
+Finally, the constructed dataframe is written to a CSV file. If for some of the masses additional identification information was obtained, e.g. through MS/MS measurements, this information can be added after
+the automated xcms and CAMERA pipeline.
 
 <<export>>=
 
@@ -182,6 +194,8 @@ maf_character <- apply(maf, 2, as.character)
 write.table(maf_character, file="a_mtbl2_metabolite profiling_mass spectrometry_maf2.csv",
             row.names=FALSE, col.names=all.colnames, quote=TRUE, sep="\t", na="\"\"")
 
+date()
+sessionInfo()
 @ 
 
 \end{document}
