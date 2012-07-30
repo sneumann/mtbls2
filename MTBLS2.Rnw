@@ -25,7 +25,7 @@
 \maketitle
 
 <<LibraryPreload>>=
-library(ISA2R)
+library(Risa)
 library(xcms)
 library(CAMERA)
 
@@ -41,7 +41,7 @@ An ISAtab archive will contain the metadata description in
 several tab-separated files. (One of) the assay files contains the column ``Raw Spectral Data File``
 with the paths to the mass spectral raw data files in one of the above formats. 
 
-With the combination of \Rpackage{ISA2R} and \Rpackage{xcms}, we can convert the MS raw data 
+With the combination of \Rpackage{Risa} and \Rpackage{xcms}, we can convert the MS raw data 
 in an ISAtab archive into an \Rclass{xcmsSet}:
 
 <<PeakPicking, cache=true>>=
