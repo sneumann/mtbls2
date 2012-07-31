@@ -154,7 +154,7 @@ Many of the other mzTab columns are left empty.
 ## Alejandra: This we should get from the ISAmtbls2 read in above!
 ## 
 
-a.samples <- ISAmtbls2$samples_per_assay_filename[[ a.filename ]]
+a.samples <- ISAmtbls2$samples.per.assay.filename[[ a.filename ]]
 
 ##
 ## These columns are defined by mzTab
