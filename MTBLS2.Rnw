@@ -218,8 +218,7 @@ the automated xcms and CAMERA pipeline.
 write.table(maf_character, file="a_mtbl2_metabolite profiling_mass spectrometry_maf2.csv",
             row.names=FALSE, col.names=all.colnames, quote=TRUE, sep="\t", na="\"\"")
 
-
-addAssayMetadata(ISAmtbls2, a.filename,"Metabolite Assignment File","a_mtbl2_metabolite profiling_mass spectrometry_maf2.csv" )
+updateAssayMetadata(ISAmtbls2, a.filename,"Metabolite Assignment File","a_mtbl2_metabolite profiling_mass spectrometry_maf2.csv" )
 
 write.assay.file(ISAmtbls2, a.filename)
 
