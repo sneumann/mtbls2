@@ -62,7 +62,7 @@ mtbls2Set
 
 @
 
-In the following steps, we perform a grouping. Because the UPLC system used here 
+In the following steps, we perform a grouping: because the UPLC system used here 
 has very stable retention times, we just use the retention time correction step 
 as quality control of the raw data. After that, \Rmethod{fillPeaks()} will integrate 
 the raw data for those features, which were not detected in some of the samples.
