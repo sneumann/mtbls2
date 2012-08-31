@@ -53,8 +53,8 @@ a.filename <- ISAmtbls2["assay.filenames"][[1]]
 mtbls2Set <- processAssayXcmsSet(ISAmtbls2, a.filename,
                                method="centWave", prefilter=c(3,200),
                                snthr=5, verbose.columns=T,
-#                               ppm=25, scanrange=c(0,2900),
-                               ppm=25, scanrange=c(2000,2100),
+                               ppm=25, scanrange=c(0,2900),
+#                               ppm=25, scanrange=c(2000,2100),
                                peakwidth=c(5,12),
                                nSlaves=2)
 
