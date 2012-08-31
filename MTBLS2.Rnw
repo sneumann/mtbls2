@@ -46,9 +46,9 @@ in an ISAtab archive into an \Rclass{xcmsSet}:
 
 <<PeakPicking, cache=true>>=
 
-ISAmtbls2 <- isatab2bioc()
+ISAmtbls2 <- readISAtab()
 
-a.filename <- "a_mtbl2_metabolite profiling_mass spectrometry.txt"
+a.filename <- ISAmtbls2["assay.filenames"][[1]]
 
 mtbls2Set <- processAssayXcmsSet(ISAmtbls2, a.filename,
                                method="centWave", prefilter=c(3,200),
@@ -154,7 +154,7 @@ Many of the other mzTab columns are left empty.
 ## Alejandra: This we should get from the ISAmtbls2 read in above!
 ## 
 
-a.samples <- ISAmtbls2$samples_per_assay_filename[[ a.filename ]]
+a.samples <- ISAmtbls2["samples.per.assay.filename"][[ a.filename ]]
 
 ##
 ## These columns are defined by mzTab
@@ -218,8 +218,7 @@ the automated xcms and CAMERA pipeline.
 write.table(maf_character, file="a_mtbl2_metabolite profiling_mass spectrometry_maf2.csv",
             row.names=FALSE, col.names=all.colnames, quote=TRUE, sep="\t", na="\"\"")
 
-
-addAssayMetadata(ISAmtbls2, a.filename,"Metabolite Assignment File","a_mtbl2_metabolite profiling_mass spectrometry_maf2.csv" )
+updateAssayMetadata(ISAmtbls2, a.filename,"Metabolite Assignment File","a_mtbl2_metabolite profiling_mass spectrometry_maf2.csv" )
 
 write.assay.file(ISAmtbls2, a.filename)
 
