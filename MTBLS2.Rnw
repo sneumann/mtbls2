@@ -20,11 +20,18 @@
 \SweaveOpts{concordance=TRUE}
 
 \title{MTBLS2 Processing and Analysis with xcms, CAMERA and export to Metabolights}
-\author{Kenneth Haug \and Reza M. Salek \and Pablo Conesa \and Mark Williams \and Mark Rijnbeek \and Paula de Matos \and  Eamonn Maguire \and Tejasvi Mahendraker \and Steffen Neumann \and Philippe Rocca-Serra \and Susanna-Assunta Sansone \and Julian L. Griffin \and Christoph Steinbeck}
+
+\author{Kenneth Haug \and Reza M. Salek \and Pablo Conesa \and
+  Janna Hastings \and Paula de Matos \and Mark Rijnbeek \and
+  Tejasvi Mahendraker \and Mark Williams \and Steffen Neumann \and
+  Philippe Rocca-Serra \and Eamonn Maguire \and Alejandra
+  González-Beltrán \and Susanna-Assunta Sansone \and Julian
+  L. Griffin and Christoph Steinbeck}
+
 \date{\today}
 \maketitle
 
-<<LibraryPreload>>=
+<<LibraryPreload, echo = FALSE, results = hide>>=
 library(Risa)
 library(xcms)
 library(CAMERA)
