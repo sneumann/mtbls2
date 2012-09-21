@@ -8,6 +8,7 @@
 %%\VignettePackage{rISA}
 \documentclass[12pt]{article}
 \usepackage{hyperref}
+\usepackage[utf8]{inputenc}
 
 \newcommand{\Robject}[1]{{\texttt{#1}}}
 \newcommand{\Rfunction}[1]{{\texttt{#1}}}
@@ -31,11 +32,10 @@
 \date{\today}
 \maketitle
 
-<<LibraryPreload, echo = FALSE, results = hide>>=
+<<LibraryPreload, echo = FALSE, results = hide, cache=true>>=
 library(Risa)
 library(xcms)
 library(CAMERA)
-
 @
 
 Since 2006, the Bioconductor package \Rpackage{xcms} provides a rich set of
@@ -51,8 +51,7 @@ with the paths to the mass spectral raw data files in one of the above formats.
 With the combination of \Rpackage{Risa} and \Rpackage{xcms}, we can convert the MS raw data 
 in an ISAtab archive into an \Rclass{xcmsSet}:
 
-<<PeakPicking, cache=true>>=
-
+<<PeakPicking, results = hide, cache=true, cache=true>>=
 ISAmtbls2 <- readISAtab()
 
 a.filename <- ISAmtbls2["assay.filenames"][[1]]
@@ -61,24 +60,26 @@ mtbls2Set <- processAssayXcmsSet(ISAmtbls2, a.filename,
                                method="centWave", prefilter=c(3,200),
                                snthr=5, verbose.columns=T,
                                ppm=25, scanrange=c(0,2900),
-#                               ppm=25, scanrange=c(2000,2100),
                                peakwidth=c(5,12),
                                nSlaves=2)
-
-mtbls2Set
-
 @
+
+<<xcmsSet, cache=true>>=
+show(mtbls2Set)
+@ 
 
 In the following steps, we perform a grouping: because the UPLC system used here 
 has very stable retention times, we just use the retention time correction step 
 as quality control of the raw data. After that, \Rmethod{fillPeaks()} will integrate 
 the raw data for those features, which were not detected in some of the samples.
 
-<<RTcheckandGroup, cache=true>>=
+<<RTcheckandGroup, fig = TRUE, eps = FALSE, cache=true>>=
 mtbls2Set <- group(mtbls2Set, minfrac=0.75, bw=2)
 retcor(mtbls2Set, plottype="mdevden")
-mtbls2Set <- fillPeaks(mtbls2Set)
+@
 
+<<fillPeak, results = hide, cache=true>>=
+mtbls2Set <- fillPeaks(mtbls2Set)
 @
 
 The final \Rclass{xcmsSet} represents a rectangular matrix of mass spectral features,
@@ -98,8 +99,7 @@ features originate from a single metabolite, and performs the
 annotation of isotopic peaks and ion species such as adducts, cluster
 ions or common neutral losses. 
 
-<<CAMERA annotation and Stats, cache=true>>=
-
+<<CAMERA annotation and Stats, results=hide, cache=true>>=
 an <- xsAnnotate(mtbls2Set,
                  sample=seq(1,length(sampnames(mtbls2Set))),
                  nSlaves=2)
@@ -127,7 +127,6 @@ dim(rs@rules)
 an <- findAdducts(an,
                   rules=rs@rules,
                   polarity="positive")
-
 @ 
 
 These annotations can also be added to
@@ -138,7 +137,6 @@ alternative quantification approaches from \Rmethod{groupval()}. From \Rpackage{
 deduced from the isotopic pattern. 
 
 <<collect, cache=true>>=
-
 ##
 ## Get annotated peaklist
 ##
@@ -147,7 +145,6 @@ pl <- getPeaklist(an)
 
 charge <- sapply(an@isotopes, function(x) {ifelse( length(x) > 0, x$charge, NA) })
 abundance <- groupval(an@xcmsSet, value="into")
-
 @ 
 
 This report can now be saved as ``Metabolite Assignment File'', which is modelled after the mzTab 
@@ -155,7 +152,6 @@ specification\footnote{\url{http://www.psidev.info/index.php?q=node/80}}.
 Many of the other mzTab columns are left empty.
 
 <<assembleMAF, chache=true>>=
-
 ##
 ## load ISA assay files
 ## Alejandra: This we should get from the ISAmtbls2 read in above!
@@ -206,9 +202,7 @@ maf <- data.frame(identifier = character(l),
                   smallmolecule_abundance_std_error_sub = character(l),
                   abundance, stringsAsFactors=FALSE)
 
-
 maf_character <- apply(maf, 2, as.character)
-
 @ 
 
 Finally, the constructed dataframe is written to a CSV file. If for
@@ -222,10 +216,14 @@ the automated xcms and CAMERA pipeline.
 ## We need to ask Metabolights whether it is required to quote the numbers, 
 ## or if we can get away with write.table(maf, file=...)
 
-write.table(maf_character, file="a_mtbl2_metabolite profiling_mass spectrometry_maf2.csv",
-            row.names=FALSE, col.names=all.colnames, quote=TRUE, sep="\t", na="\"\"")
+write.table(maf_character, 
+            file="a_mtbl2_metabolite profiling_mass spectrometry_maf.csv",
+            row.names=FALSE, col.names=all.colnames, 
+            quote=TRUE, sep="\t", na="\"\"")
 
-updateAssayMetadata(ISAmtbls2, a.filename,"Metabolite Assignment File","a_mtbl2_metabolite profiling_mass spectrometry_maf2.csv" )
+ISAmtbls2 <- updateAssayMetadata(ISAmtbls2, a.filename,
+                    "Metabolite Assignment File",
+                    "a_mtbl2_metabolite profiling_mass spectrometry_maf.csv" )
 
 write.assay.file(ISAmtbls2, a.filename)
 
