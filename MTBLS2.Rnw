@@ -32,7 +32,7 @@
 \date{\today}
 \maketitle
 
-<<LibraryPreload, echo = FALSE, results = hide, cache=true>>=
+<<LibraryPreload, echo = FALSE, results = hide>>=
 library(Risa)
 library(xcms)
 library(CAMERA)
@@ -73,12 +73,9 @@ has very stable retention times, we just use the retention time correction step
 as quality control of the raw data. After that, \Rmethod{fillPeaks()} will integrate 
 the raw data for those features, which were not detected in some of the samples.
 
-<<RTcheckandGroup, fig = TRUE, eps = FALSE, cache=true>>=
+<<RTcheckandGroup, results=hide, cache=true>>=
 mtbls2Set <- group(mtbls2Set, minfrac=0.75, bw=2)
 retcor(mtbls2Set, plottype="mdevden")
-@
-
-<<fillPeak, results = hide, cache=true>>=
 mtbls2Set <- fillPeaks(mtbls2Set)
 @
 
@@ -143,7 +140,9 @@ deduced from the isotopic pattern.
 
 pl <- getPeaklist(an)
 
-charge <- sapply(an@isotopes, function(x) {ifelse( length(x) > 0, x$charge, NA) })
+charge <- sapply(an@isotopes, function(x) {
+  ifelse( length(x) > 0, x$charge, NA) 
+})
 abundance <- groupval(an@xcmsSet, value="into")
 @ 
 
@@ -154,7 +153,6 @@ Many of the other mzTab columns are left empty.
 <<assembleMAF, chache=true>>=
 ##
 ## load ISA assay files
-## Alejandra: This we should get from the ISAmtbls2 read in above!
 ## 
 
 a.samples <- ISAmtbls2["samples.per.assay.filename"][[ a.filename ]]
@@ -222,8 +220,8 @@ write.table(maf_character,
             quote=TRUE, sep="\t", na="\"\"")
 
 ISAmtbls2 <- updateAssayMetadata(ISAmtbls2, a.filename,
-                    "Metabolite Assignment File",
-                    "a_mtbl2_metabolite profiling_mass spectrometry_maf.csv" )
+                  "Metabolite Assignment File",
+                  "a_mtbl2_metabolite profiling_mass spectrometry_maf.csv")
 
 write.assay.file(ISAmtbls2, a.filename)
 
