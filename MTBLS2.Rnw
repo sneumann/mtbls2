@@ -7,7 +7,17 @@
 %\VignetteKeywords{preprocess, analysis, alignment, mass spectrometry}
 %%\VignettePackage{rISA}
 \documentclass[12pt]{article}
+\usepackage[authoryear,round]{natbib}
 \usepackage{hyperref}
+\usepackage{xcolor}
+\definecolor{dark-red}{rgb}{0.4,0.15,0.15}
+\definecolor{dark-blue}{rgb}{0.15,0.15,0.4}
+\definecolor{medium-blue}{rgb}{0,0,0.5}
+\hypersetup{
+    colorlinks, linkcolor={dark-red},
+    citecolor={dark-blue}, urlcolor={medium-blue}
+}
+
 \usepackage[utf8]{inputenc}
 
 \newcommand{\Robject}[1]{{\texttt{#1}}}
@@ -20,11 +30,12 @@
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 
-\title{MTBLS2 Processing and Analysis with xcms, CAMERA and export to Metabolights}
+\title{MTBLS2 Processing and Analysis with xcms, CAMERA and export to MetaboLights}
 
 \author{Kenneth Haug \and Reza M. Salek \and Pablo Conesa \and
   Janna Hastings \and Paula de Matos \and Mark Rijnbeek \and
-  Tejasvi Mahendraker \and Mark Williams \and Steffen Neumann \and
+  Tejasvi Mahendraker \and Mark Williams \and Steffen Neumann 
+  \and Christoph Böttcher \and
   Philippe Rocca-Serra \and Eamonn Maguire \and Alejandra
   González-Beltrán \and Susanna-Assunta Sansone \and Julian
   L. Griffin and Christoph Steinbeck}
@@ -38,11 +49,13 @@ library(xcms)
 library(CAMERA)
 @
 
-Since 2006, the Bioconductor package \Rpackage{xcms} provides a rich set of
+Since 2006, the Bioconductor package \Rpackage{xcms} \citep{Smith06XCMSProcessingmass} provides a rich set of
 algorithms for mass spectrometry data processing. Typically, \Rpackage{xcms} will
 create an \Rclass{xcmsSet} object from several raw data files in an assay,
 which are obtained from the samples in the study.  
 Allowed raw data formats are netCDF, mzData, mzXML and mzML.
+In this vignette, we demonstrate the processing of the MTBLS2 dataset, 
+which was described in \cite{Neumann12Nearlineacquisitionand}.
 
 An ISAtab archive will contain the metadata description in 
 several tab-separated files. (One of) the assay files contains the column ``Raw Spectral Data File``
@@ -64,7 +77,7 @@ mtbls2Set <- processAssayXcmsSet(ISAmtbls2, a.filename,
                                nSlaves=2)
 @
 
-<<xcmsSet, cache=true>>=
+<<xcmsSet>>=
 show(mtbls2Set)
 @ 
 
@@ -85,13 +98,14 @@ where $M$ denotes the number of samples in the assay, and $N$ the number
 of features grouped across the samples. Several options exist to
 quantify the individual intensities. For each feature,
 additional attributes are available, such as the minimum/maximum and
-average retenion time and m/z values. 
+average retention time and m/z values. 
 These attributes and the intensity matrix could already be exported to conform 
-to the specification for the mzTab format. 
+to the specification for the ``metabolite assignment file'' 
+in the mzTab format used in MetaboLights.
 
 In a typical mass spectrometry metabolomics workflow, the features
-detected by \Rpackage{xcms} are further processed by \Rpackage{CAMERA}, another Bioconductor
-package. C\Rpackage{AMERA} provides several algorithms to determine which
+detected by \Rpackage{xcms} are further processed by \Rpackage{CAMERA} \citep{Kuhl12CAMERAintegratedstrategy}, another Bioconductor
+package. \Rpackage{CAMERA} provides several algorithms to determine which
 features originate from a single metabolite, and performs the
 annotation of isotopic peaks and ion species such as adducts, cluster
 ions or common neutral losses. 
@@ -119,7 +133,6 @@ rs@neutrallossfile <- "neutralloss.csv"
 rs <- readLists(rs)
 rs <- setDefaultParams(rs)
 rs <- generateRules(rs)
-dim(rs@rules)
 
 an <- findAdducts(an,
                   rules=rs@rules,
@@ -128,7 +141,7 @@ an <- findAdducts(an,
 
 These annotations can also be added to
 the metabolite assignment file to specify the ``charge'' and
-``modification''. Here, we use 
+``modification'' columns. Here, we use 
 the m/z and retention of the xcmsSet groups. As intensities, we can use any of the 
 alternative quantification approaches from \Rmethod{groupval()}. From \Rpackage{CAMERA}, we obtain the charge, 
 deduced from the isotopic pattern. 
@@ -199,8 +212,6 @@ maf <- data.frame(identifier = character(l),
                   smallmolecule_abundance_stdev_sub = character(l), 
                   smallmolecule_abundance_std_error_sub = character(l),
                   abundance, stringsAsFactors=FALSE)
-
-maf_character <- apply(maf, 2, as.character)
 @ 
 
 Finally, the constructed dataframe is written to a CSV file. If for
@@ -210,9 +221,10 @@ the automated xcms and CAMERA pipeline.
 
 <<export>>=
 ##
-## Alejandra: Here we need to add the *_maf.csv to the ISAmtbls2 assay file.
-## We need to ask Metabolights whether it is required to quote the numbers, 
-## or if we can get away with write.table(maf, file=...)
+## Make sure maf table is quoted properly, 
+## and add to the ISAmtbls2 assay file.
+## 
+maf_character <- apply(maf, 2, as.character)
 
 write.table(maf_character, 
             file="a_mtbl2_metabolite profiling_mass spectrometry_maf.csv",
@@ -220,13 +232,20 @@ write.table(maf_character,
             quote=TRUE, sep="\t", na="\"\"")
 
 ISAmtbls2 <- updateAssayMetadata(ISAmtbls2, a.filename,
-                  "Metabolite Assignment File",
-                  "a_mtbl2_metabolite profiling_mass spectrometry_maf.csv")
+             "Metabolite Assignment File",
+             "a_mtbl2_metabolite profiling_mass spectrometry_maf.csv")
 
 write.assay.file(ISAmtbls2, a.filename)
+
+##
+## Done. 
+##
 
 date()
 sessionInfo()
 @ 
+
+\bibliographystyle{plainnat}
+\bibliography{MTBLS2}
 
 \end{document}
