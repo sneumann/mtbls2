@@ -1,0 +1,246 @@
+<MzQuantML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://psidev.info/psi/pi/mzQuantML/1.0.0 ../../../schema/mzQuantML_1_0_0.xsd"
+ xmlns="http://psidev.info/psi/pi/mzQuantML/1.0.0"
+ id="MTBLS2"
+ version="1.0.0"
+ creationDate="2013-03-15T00:00:00Z">
+    <CvList>
+        <Cv id="PSI-MS" uri="http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo" version="2.25.0" fullName="Proteomics Standards Initiative Mass Spectrometry Vocabularies"/>
+        <Cv id="UNIMOD" uri="http://www.unimod.org/obo/unimod.obo" fullName="Unimod"/>
+    </CvList>
+    <AuditCollection>
+        <Person firstName="Steffen" lastName="Neumann" id="PERS_STN">
+            <Affiliation organization_ref="ORG_IPB"/>
+        </Person>
+        <Organization name="Leibniz Institute of Plant Biochemistry" id="ORG_IPB"/>
+    </AuditCollection>
+    <AnalysisSummary>
+        <cvParam accession="MS:1001834" cvRef="PSI-MS" name="LC-MS label-free quantitation analysis"/>
+        <cvParam accession="MS:1002019" cvRef="PSI-MS" value="false" name="label-free raw feature quantitation"/>
+    </AnalysisSummary>
+    <InputFiles>
+      <RawFilesGroup id="rg_1">
+	<RawFile location="MSpos-Ex1-Col0-48h-Ag-1_1-A,1_01_9818.mzData" name="MSpos-Ex1-Col0-48h-Ag-1_1-A,1_01_9818.mzData" id="raw_1"/> 
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_2">
+	<RawFile location="MSpos-Ex1-Col0-48h-Ag-2_1-A,1_01_9820.mzData" name="MSpos-Ex1-Col0-48h-Ag-2_1-A,1_01_9820.mzData" id="raw_2"/> 
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_3">
+	<RawFile location="MSpos-Ex1-Col0-48h-Ag-3_1-A,1_01_9822.mzData" name="MSpos-Ex1-Col0-48h-Ag-3_1-A,1_01_9822.mzData" id="raw_3"/> 
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_4">
+	<RawFile location="MSpos-Ex1-Col0-48h-Ag-4_1-A,1_01_9824.mzData" name="MSpos-Ex1-Col0-48h-Ag-4_1-A,1_01_9824.mzData" id="raw_4"/> 
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_5">
+	<RawFile location="MSpos-Ex1-cyp79-48h-Ag-1_1-B,1_01_9819.mzData" name="MSpos-Ex1-cyp79-48h-Ag-1_1-B,1_01_9819.mzData" id="raw_5"/> 
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_6">
+	<RawFile location="MSpos-Ex1-cyp79-48h-Ag-2_1-B,2_01_9821.mzData" name="MSpos-Ex1-cyp79-48h-Ag-2_1-B,2_01_9821.mzData" id="raw_6"/> 
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_7">
+	<RawFile location="MSpos-Ex1-cyp79-48h-Ag-3_1-B,1_01_9823.mzData" name="MSpos-Ex1-cyp79-48h-Ag-3_1-B,1_01_9823.mzData" id="raw_7"/> 
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_8">
+	<RawFile location="MSpos-Ex1-cyp79-48h-Ag-4_1-B,2_01_9825.mzData" name="MSpos-Ex1-cyp79-48h-Ag-4_1-B,2_01_9825.mzData" id="raw_8"/> 
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_9">
+	<RawFile location="MSpos-Ex2-Col0-48h-Ag-1_1-A,2_01_9827.mzData" name="MSpos-Ex2-Col0-48h-Ag-1_1-A,2_01_9827.mzData" id="raw_9"/> 
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_10">
+	<RawFile location="MSpos-Ex2-Col0-48h-Ag-2_1-A,3_01_9829.mzData" name="MSpos-Ex2-Col0-48h-Ag-2_1-A,3_01_9829.mzData" id="raw_10"/>
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_11">
+	<RawFile location="MSpos-Ex2-Col0-48h-Ag-3_1-A,4_01_9831.mzData" name="MSpos-Ex2-Col0-48h-Ag-3_1-A,4_01_9831.mzData" id="raw_11"/>
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_12">
+	<RawFile location="MSpos-Ex2-Col0-48h-Ag-4_1-A,2_01_9833.mzData" name="MSpos-Ex2-Col0-48h-Ag-4_1-A,2_01_9833.mzData" id="raw_12"/>
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_13">
+	<RawFile location="MSpos-Ex2-cyp79-48h-Ag-1_1-B,3_01_9828.mzData" name="MSpos-Ex2-cyp79-48h-Ag-1_1-B,3_01_9828.mzData" id="raw_13"/>
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_14">
+	<RawFile location="MSpos-Ex2-cyp79-48h-Ag-2_1-B,4_01_9830.mzData" name="MSpos-Ex2-cyp79-48h-Ag-2_1-B,4_01_9830.mzData" id="raw_14"/>
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_15">
+	<RawFile location="MSpos-Ex2-cyp79-48h-Ag-3_1-B,3_01_9832.mzData" name="MSpos-Ex2-cyp79-48h-Ag-3_1-B,3_01_9832.mzData" id="raw_15"/>
+      </RawFilesGroup>
+      <RawFilesGroup id="rg_16">
+	<RawFile location="MSpos-Ex2-cyp79-48h-Ag-4_1-B,4_01_9834.mzData" name="MSpos-Ex2-cyp79-48h-Ag-4_1-B,4_01_9834.mzData" id="raw_16"/>
+      </RawFilesGroup>
+      <!-- <IdentificationFiles> -->
+      <!-- 	<IdentificationFile searchDatabase_ref="SD1" location="file://progenesis-post-processor/progenesis-post-processor/src/main/resources/examples/out_CPTAC_Progen_mzid_toyexample.csv" name="out_CPTAC_Progen_mzid_toyexample.csv" id="idfile_1"/> -->
+      <!-- </IdentificationFiles> -->
+      <!-- <SearchDatabase location="sgd_orfs_plus_ups_prots.fasta" id="SD1"> -->
+      <!-- 	<DatabaseName> -->
+      <!-- 	  <userParam name="sgd_orfs_plus_ups_prots.fasta"/> -->
+      <!-- 	</DatabaseName> -->
+      <!-- </SearchDatabase> -->
+    </InputFiles>
+    <SoftwareList>
+        <Software version="2.3" id="Progenesis">
+            <cvParam accession="MS:1001830" cvRef="PSI-MS" name="Progenesis LC-MS"/>
+        </Software>
+    </SoftwareList>
+    <DataProcessingList>
+        <DataProcessing order="1" software_ref="Progenesis" id="DP1">
+            <ProcessingMethod order="1">
+                <cvParam accession="MS:1001865" cvRef="PSI-MS" name="Progenesis automatic alignment"/>
+            </ProcessingMethod>
+            <ProcessingMethod order="2">
+                <cvParam accession="MS:1001867" cvRef="PSI-MS" name="Progenesis normalization"/>
+            </ProcessingMethod>
+        </DataProcessing>
+    </DataProcessingList>
+    <BibliographicReference doi="10.1007/s11306-012-0401-0" title="Nearline acquisition and processing of liquid chromatography-tandem mass spectrometry data" pages="84-91" issue="9" volume="1" year="2013" publication="Metabolomics" authors=" Steffen Neumann,Andrea Thum,Christoph Böttcher" id="BF_NEARLINE"/>
+    <AssayList id="AssayList_1">
+      <Assay rawFilesGroup_ref="rg_1" name="MSpos-Ex1-Col0-48h-Ag-1_1-A,1_01_9818"   id="ass_1" >
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_2" name="MSpos-Ex1-Col0-48h-Ag-2_1-A,1_01_9820"   id="ass_2" >
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_3" name="MSpos-Ex1-Col0-48h-Ag-3_1-A,1_01_9822"   id="ass_3" >
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_4" name="MSpos-Ex1-Col0-48h-Ag-4_1-A,1_01_9824"   id="ass_4" >
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_5" name="MSpos-Ex1-cyp79-48h-Ag-1_1-B,1_01_9819"  id="ass_5" >
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_6" name="MSpos-Ex1-cyp79-48h-Ag-2_1-B,2_01_9821"  id="ass_6" >
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_7" name="MSpos-Ex1-cyp79-48h-Ag-3_1-B,1_01_9823"  id="ass_7" >
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_8" name="MSpos-Ex1-cyp79-48h-Ag-4_1-B,2_01_9825"  id="ass_8" >
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_9" name="MSpos-Ex2-Col0-48h-Ag-1_1-A,2_01_9827"   id="ass_9" >
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_10" name="MSpos-Ex2-Col0-48h-Ag-2_1-A,3_01_9829"  id="ass_10">
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_11" name="MSpos-Ex2-Col0-48h-Ag-3_1-A,4_01_9831"  id="ass_11">
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_12" name="MSpos-Ex2-Col0-48h-Ag-4_1-A,2_01_9833"  id="ass_12">
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_13" name="MSpos-Ex2-cyp79-48h-Ag-1_1-B,3_01_9828" id="ass_13">
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_14" name="MSpos-Ex2-cyp79-48h-Ag-2_1-B,4_01_9830" id="ass_14">
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_15" name="MSpos-Ex2-cyp79-48h-Ag-3_1-B,3_01_9832" id="ass_15">
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+      <Assay rawFilesGroup_ref="rg_16" name="MSpos-Ex2-cyp79-48h-Ag-4_1-B,4_01_9834" id="ass_16">
+	<Label>
+	  <Modification>
+	    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+	  </Modification>
+	</Label>
+      </Assay>
+    </AssayList>
+    <StudyVariableList>
+        <StudyVariable name="Col-0 Exp1" id="SV_COL-1">
+            <cvParam accession="MS:1001808" cvRef="PSI-MS" name="technical replicate" value=""/>
+            <Assay_refs>ass_1 ass_2 ass_3 ass_4</Assay_refs>
+        </StudyVariable>
+        <StudyVariable name="Cyp79 Exp1" id="SV_CYP-1">
+            <cvParam accession="MS:1001808" cvRef="PSI-MS" name="technical replicate" value=""/>
+            <Assay_refs>ass_5 ass_6 ass_7 ass_8</Assay_refs>
+        </StudyVariable>
+        <StudyVariable name="Col-0 Exp2" id="SV_COL-2">
+            <cvParam accession="MS:1001808" cvRef="PSI-MS" name="technical replicate" value=""/>
+            <Assay_refs>ass_9 ass_10 ass_11 ass_12</Assay_refs>
+        </StudyVariable>
+        <StudyVariable name="Cyp79 Exp2" id="SV_CYP-2">
+            <cvParam accession="MS:1001808" cvRef="PSI-MS" name="technical replicate" value=""/>
+            <Assay_refs>ass_13 ass_14 ass_15 ass_16</Assay_refs>
+        </StudyVariable>
+    </StudyVariableList>
+    <SmallMoleculeList id="SMList1">
+      <SmallMolecule id="smh_1">
+      </SmallMolecule>
+      <AssayQuantLayer id="xset_final1">
+	<DataType>
+	  <cvParam accession="MS:1001840" cvRef="PSI-MS" name="LC-MS feature intensity"/>
+	</DataType>
+	<ColumnIndex>ass_1 ass_2 ass_3 ass_4 ass_5 ass_6 ass_7 ass_8 ass_9 ass_10 ass_11 ass_12 ass_13 ass_14 ass_15 ass_16</ColumnIndex>
+            <DataMatrix>
+                <Row object_ref="smh_1">9079.67 6680.893 6869.919 7069.431 6872.01 7488.588 5045.095 7063.636 6636.347 3902.41 4320.357 4045.954 6636.347 3902.41 4320.357 4045.954</Row>
+            </DataMatrix>
+        </AssayQuantLayer>
+    </SmallMoleculeList>
+    <FeatureList id="Flist0" rawFilesGroup_ref="rg_1">
+        <Feature charge="1" mz="398.871" rt="38.47" id="ft_0">
+            <MassTrace>38.016 398.871 38.923 399.871</MassTrace>
+        </Feature>
+        <cvParam accession="MS:1002122" cvRef="PSI-MS" name="counts reporting"/>
+    </FeatureList>
+</MzQuantML>
