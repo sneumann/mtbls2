@@ -6,7 +6,6 @@
  creationDate="2013-03-15T00:00:00Z">
     <CvList>
         <Cv id="PSI-MS" uri="http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo" version="2.25.0" fullName="Proteomics Standards Initiative Mass Spectrometry Vocabularies"/>
-        <Cv id="UNIMOD" uri="http://www.unimod.org/obo/unimod.obo" fullName="Unimod"/>
     </CvList>
     <AuditCollection>
         <Person firstName="Steffen" lastName="Neumann" id="PERS_STN">
@@ -77,8 +76,8 @@
       <!-- </SearchDatabase> -->
     </InputFiles>
     <SoftwareList>
-        <Software version="2.3" id="Progenesis">
-            <cvParam accession="MS:1001830" cvRef="PSI-MS" name="Progenesis LC-MS"/>
+        <Software version="2.3" id="XCMS">
+            <cvParam accession="MS:1001830" cvRef="PSI-MS" name="XCMS"/>
         </Software>
     </SoftwareList>
     <DataProcessingList>
