@@ -123,17 +123,14 @@ buildAssayList <- function(xs) {
                .children=assays)        
 }
 
-
-
 buildStudyVariableList <- function(xs) {
-    p <- phenoData(xs)
+    ## These variables are given by sampclass(xs)
     sc <- sampclass(xs)
-
-    svlevels <- levels(sampclass(faahko))
+    svlevels <- levels(sc)
     StudyVariables <- lapply (seq(1,length(svlevels)), function(i) {
         sv <- svlevels[i]
         ##        assays <- paste (sampnames(xs)[sampclass(xs) == sv], collapse="-")
-        assay_ref <- paste("assay", which(sampclass(xs) == sv), sep="_", collapse=" ")
+        assay_ref <- paste("assay", which(sc == sv), sep="_", collapse=" ")
         
         newXMLNode("StudyVariable",
                    attrs=c(
@@ -141,11 +138,62 @@ buildStudyVariableList <- function(xs) {
                        id=paste("SV_COLLAPSED", i, sep="_")),
                    .children=list(newXMLNode("Assay_refs", assay_ref)))
     })
+
+    ## iff phenoData has >1 columns, we also add the StudyVariables
+    ## taken from the phenoData columns individually
+    ## The variables are obtained via phenoData(xs)
+    ## and written to mzQuantML in a column-wise fashion
+    ##
+    p <- cbind(phenoData(xs), "dummy")
+    
+    phenoVariables <- list()
+    if (ncol(p)>1) {
+        phenoVariables <- unlist(lapply(seq(1, ncol(p)), function(j) {
+            sc <- p[,j]
+            svlevels <- levels(sc)
+            StudyVariables <- lapply (seq(1,length(svlevels)), function(i) {
+                sv <- svlevels[i]
+                assay_ref <- paste("assay", which(sc == sv), sep="_", collapse=" ")
+                
+                newXMLNode("StudyVariable",
+                           attrs=c(
+                               name=svlevels[i],
+                               id=paste("SV_PHENODATA", j, i, sep="_")),
+                           .children=list(newXMLNode("Assay_refs", assay_ref)))
+            })
+        }))
+    }
     
     newXMLNode("StudyVariableList",
-               .children=StudyVariables)
+               .children=c(StudyVariables, phenoVariables))
+
 }
 
+
+buildFeatureList <- function(xs, parent) {
+    sn <- sampnames(xs)
+    pks <- cbind(id=paste("Feature", 1:nrow(peaks(xs)), sep="_"), peaks(xs)[, c("mz", "rt", "sample")])
+    
+    Features <- apply(pks, MARGIN=1, FUN=function(p) {        
+##        newXMLNode("Feature", attrs=c(id=p["id"], charge="1", mz=p["mz"], rt=p["rt"]))
+        newXMLNode("Feature", attrs=c(p[c("id", "rt", "mz")], charge="1"))
+    })
+    
+    snum <- pks[,"sample"]
+    unique_snum <- unique(snum)
+    idxList <- lapply(unique_snum, function(x) {
+        which(snum==x)
+    })
+    
+    dummy <- lapply(1:length(idxList), function(i) {
+        
+        parent$addNode(newXMLNode("FeatureList",
+                                  attrs=c(id=paste("FeatureList_", i, sep=""),
+                                      rawFilesGroup_ref=paste("rfg_", i, sep="")),
+                                  .children=Features[idxList[[i]]]))
+    })
+    
+}
 
 buildMzq <- function(xs) {
     mzqVersion="1.0.0"
@@ -171,14 +219,18 @@ buildMzq <- function(xs) {
     mzq$addNode(buildAssayList(xs))
     mzq$addNode(buildStudyVariableList(xs))
 ##    mzq$addNode(buildSmallMoleculeList(xs))
-##    mzq$addNode(buildFeatureList(xs))    
+
+    buildFeatureList(xs, parent=mzq)
+
+    ## kids <- buildFeatureList(xs)    
+    ## mzq$addChildren(mzq, .kids=kids)
+    
     mzq$closeTag()                                        
 }
 
+system(command="rm writemzq.mzq.xml")
 write.mzq(faahko, "writemzq.mzq.xml")
 
 verify.mzq(xmlfilename="writemzq.mzq.xml",
            xsdfilename="mzQuantML_1_0_0.xsd")# $errors[[1]]$msg
-
-
 
