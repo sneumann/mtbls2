@@ -124,6 +124,29 @@ buildAssayList <- function(xs) {
 }
 
 
+
+buildStudyVariableList <- function(xs) {
+    p <- phenoData(xs)
+    sc <- sampclass(xs)
+
+    svlevels <- levels(sampclass(faahko))
+    StudyVariables <- lapply (seq(1,length(svlevels)), function(i) {
+        sv <- svlevels[i]
+        ##        assays <- paste (sampnames(xs)[sampclass(xs) == sv], collapse="-")
+        assay_ref <- paste("assay", which(sampclass(xs) == sv), sep="_", collapse=" ")
+        
+        newXMLNode("StudyVariable",
+                   attrs=c(
+                       name=svlevels[i],
+                       id=paste("SV_COLLAPSED", i, sep="_")),
+                   .children=list(newXMLNode("Assay_refs", assay_ref)))
+    })
+    
+    newXMLNode("StudyVariableList",
+               .children=StudyVariables)
+}
+
+
 buildMzq <- function(xs) {
     mzqVersion="1.0.0"
     schemaLocation="http://psidev.info/psi/pi/mzQuantML/1.0.0 ../../../schema/mzQuantML_1_0_0.xsd"
@@ -146,6 +169,9 @@ buildMzq <- function(xs) {
     mzq$addNode(buildSoftwareList())
     mzq$addNode(buildDataProcessingList())
     mzq$addNode(buildAssayList(xs))
+    mzq$addNode(buildStudyVariableList(xs))
+##    mzq$addNode(buildSmallMoleculeList(xs))
+##    mzq$addNode(buildFeatureList(xs))    
     mzq$closeTag()                                        
 }
 
