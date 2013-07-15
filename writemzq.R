@@ -1,6 +1,10 @@
 library(faahKO)
+xsg <- fillPeaks(group(faahko))
+
 
 require(XML) || stop("We need library(XML) to write mzData")
+
+
 
 write.mzq <- function(object, filename) {
     mzq <- buildMzq(object)
@@ -112,7 +116,7 @@ buildAssayList <- function(xs) {
                    attrs=c(
                        rawFilesGroup_ref=paste("rfg_", i, sep=""),
                        name=x,
-                       id=paste("assay_", i, sep="")),
+                       id=paste("assay", i, sep="_")),
                    .children=list(newXMLNode("Label",
                        .children=newXMLNode("Modification",
                            buildCvParams(list(c(accession="MS:1002038", cvRef="PSI-MS", name="unlabeled sample")))
@@ -191,8 +195,46 @@ buildFeatureList <- function(xs, parent) {
                                   attrs=c(id=paste("FeatureList_", i, sep=""),
                                       rawFilesGroup_ref=paste("rfg_", i, sep="")),
                                   .children=Features[idxList[[i]]]))
-    })
+    })    
+}
+
+buildSmallMoleculeList <- function(xs) {
+
+    data <- cbind(groupnames(xs), groupval(xs, value="into"))
+    naidx <- is.na(data)
+    if (any(naidx)) {
+        warning("xcmsSet still contains NA values, filling zero in")
+        data[naidx] <- 0
+    }
+
+    SmallMolecules <- lapply(data[,1], function(x) {newXMLNode("SmallMolecule",
+                                attrs=c(id=x))})
     
+    DataType <- newXMLNode("DataType",
+                           .children=buildCvParams(list(c(accession="MS:1001840",
+                               cvRef="PSI-MS",
+                               name="LC-MS feature intensity"))))
+ 
+    assay_ref <- paste("assay", 1:length(sampnames(xs)), sep="_", collapse=" ")
+    ColumnIndex <- newXMLNode("ColumnIndex", assay_ref)
+    
+    DataMatrix <- newXMLNode("DataMatrix",
+                             .children=apply(data, MARGIN=1, FUN=function(row) {
+                                 newXMLNode("Row", 
+                                            paste(row[-1], collapse=" "),
+                                            attrs=c(object_ref=row[1]))
+                             }))
+
+    AssayQuantLayer <- newXMLNode("AssayQuantLayer",
+                                  attrs=c(id="xset_1"),
+                                  .children=list(DataType,
+                                      ColumnIndex,
+                                      DataMatrix))
+    
+    newXMLNode("SmallMoleculeList",
+               attrs=c(id="SML_1"),
+               .children=c(SmallMolecules,
+                   AssayQuantLayer))        
 }
 
 buildMzq <- function(xs) {
@@ -218,19 +260,18 @@ buildMzq <- function(xs) {
     mzq$addNode(buildDataProcessingList())
     mzq$addNode(buildAssayList(xs))
     mzq$addNode(buildStudyVariableList(xs))
-##    mzq$addNode(buildSmallMoleculeList(xs))
+    mzq$addNode(buildSmallMoleculeList(xs))
 
     buildFeatureList(xs, parent=mzq)
-
-    ## kids <- buildFeatureList(xs)    
-    ## mzq$addChildren(mzq, .kids=kids)
     
     mzq$closeTag()                                        
 }
 
+
 system(command="rm writemzq.mzq.xml")
-write.mzq(faahko, "writemzq.mzq.xml")
+write.mzq(xsg, "writemzq.mzq.xml")
 
 verify.mzq(xmlfilename="writemzq.mzq.xml",
            xsdfilename="mzQuantML_1_0_0.xsd")# $errors[[1]]$msg
+
 
