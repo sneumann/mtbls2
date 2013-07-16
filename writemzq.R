@@ -200,15 +200,23 @@ buildFeatureList <- function(xs, parent) {
 
 buildSmallMoleculeList <- function(xs) {
 
-    data <- cbind(groupnames(xs), groupval(xs, value="into"))
+            
+    feature_refs <- apply(groupval(xs, value="index"), MARGIN=1, FUN=function(x) {paste("Feature", x, sep="_", collapse=" ")})
+    data <- cbind(groupnames(xs),
+                  feature_refs,
+                  groupval(xs, value="into"))
     naidx <- is.na(data)
     if (any(naidx)) {
         warning("xcmsSet still contains NA values, filling zero in")
         data[naidx] <- 0
     }
 
-    SmallMolecules <- lapply(data[,1], function(x) {newXMLNode("SmallMolecule",
-                                attrs=c(id=x))})
+
+    SmallMolecules <- apply(data[,1:2], 1, FUN=function(x) {        
+        newXMLNode("SmallMolecule",
+                   attrs=c(id=x[1]),
+                   .children=list(newXMLNode("Feature_refs", x[2])))
+    })
     
     DataType <- newXMLNode("DataType",
                            .children=buildCvParams(list(c(accession="MS:1001840",
@@ -221,7 +229,7 @@ buildSmallMoleculeList <- function(xs) {
     DataMatrix <- newXMLNode("DataMatrix",
                              .children=apply(data, MARGIN=1, FUN=function(row) {
                                  newXMLNode("Row", 
-                                            paste(row[-1], collapse=" "),
+                                            paste(row[c(-1,-2)], collapse=" "),
                                             attrs=c(object_ref=row[1]))
                              }))
 
@@ -273,5 +281,3 @@ write.mzq(xsg, "writemzq.mzq.xml")
 
 verify.mzq(xmlfilename="writemzq.mzq.xml",
            xsdfilename="mzQuantML_1_0_0.xsd")# $errors[[1]]$msg
-
-
