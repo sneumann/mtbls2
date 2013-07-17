@@ -103,6 +103,14 @@ These attributes and the intensity matrix could already be exported to conform
 to the specification for the ``metabolite assignment file'' 
 in the mzTab format used in MetaboLights.
 
+Alternatively, the xcmsSet can be written out as PSI mzQuantML format:
+<<mzQuantML, results=hide, cache=true>>=
+source("writemzq.R")
+system(command="rm -f MTBLS2.mzq.xml")
+write.mzq(mtbls2Set, "MTBLS2.mzq.xml")
+@
+
+
 In a typical mass spectrometry metabolomics workflow, the features
 detected by \Rpackage{xcms} are further processed by \Rpackage{CAMERA} \citep{Kuhl12CAMERAintegratedstrategy}, another Bioconductor
 package. \Rpackage{CAMERA} provides several algorithms to determine which
