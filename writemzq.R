@@ -1,7 +1,3 @@
-library(faahKO)
-xsg <- fillPeaks(group(faahko))
-
-
 require(XML) || stop("We need library(XML) to write mzData")
 
 
@@ -179,8 +175,7 @@ buildFeatureList <- function(xs, parent) {
     pks <- cbind(id=paste("Feature", 1:nrow(peaks(xs)), sep="_"), peaks(xs)[, c("mz", "rt", "sample")])
     
     Features <- apply(pks, MARGIN=1, FUN=function(p) {        
-##        newXMLNode("Feature", attrs=c(id=p["id"], charge="1", mz=p["mz"], rt=p["rt"]))
-        newXMLNode("Feature", attrs=c(p[c("id", "rt", "mz")], charge="1"))
+        newXMLNode("Feature", attrs=c(p[c("id", "rt", "mz")], charge="null"))
     })
     
     snum <- pks[,"sample"]
@@ -207,10 +202,8 @@ buildSmallMoleculeList <- function(xs) {
                   groupval(xs, value="into"))
     naidx <- is.na(data)
     if (any(naidx)) {
-        warning("xcmsSet still contains NA values, filling zero in")
-        data[naidx] <- 0
+        stop("xcmsSet still contains NA values, please use fillPeaks() !")
     }
-
 
     SmallMolecules <- apply(data[,1:2], 1, FUN=function(x) {        
         newXMLNode("SmallMolecule",
@@ -245,6 +238,7 @@ buildSmallMoleculeList <- function(xs) {
                    AssayQuantLayer))        
 }
 
+
 buildMzq <- function(xs) {
     mzqVersion="1.0.0"
     schemaLocation="http://psidev.info/psi/pi/mzQuantML/1.0.0 ../../../schema/mzQuantML_1_0_0.xsd"
@@ -268,16 +262,17 @@ buildMzq <- function(xs) {
     mzq$addNode(buildDataProcessingList())
     mzq$addNode(buildAssayList(xs))
     mzq$addNode(buildStudyVariableList(xs))
-    mzq$addNode(buildSmallMoleculeList(xs))
-
+ ##    mzq$addNode(buildSmallMoleculeList(xs))
     buildFeatureList(xs, parent=mzq)
     
     mzq$closeTag()                                        
 }
 
 
-system(command="rm writemzq.mzq.xml")
-write.mzq(xsg, "writemzq.mzq.xml")
+library(faahKO)
+xsg <- fillPeaks(group(faahko))
+mzqFile <- paste(tempdir(), "faahKO.mzq.xml", sep="/")
+write.mzQuantML(xsg, mzqFile)
+v <- verify.mzQuantML(filename=mzqFile)
 
-verify.mzq(xmlfilename="writemzq.mzq.xml",
-           xsdfilename="mzQuantML_1_0_0.xsd")# $errors[[1]]$msg
+
