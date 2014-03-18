@@ -1,3 +1,14 @@
+## TODO:
+## study-variable , separated -> DONE
+## assay[1]-assay[2]-assay[3]-assay[4]-assay[5]-assay[6]
+
+## link sample - assay:
+##
+## MTD	sample[1]-description	KO15
+## MTD	assay[1]-sample_ref	sample[1]
+
+
+
 library(plyr) ## for rbind.fill
 library(faahKO)
 
@@ -11,15 +22,52 @@ rbind.ragged <- function(x, y) {
     rbind.fill(x,y)
 }
 
+cvTerm <- function(CV, accession, name, value) {
+    paste("[", paste(CV, accession, name, value, sep=", "), "]", sep="")    
+}
+#cvTerm("MS", "MS:1000443", "Mass Analyzer Type", "Orbitrap")
+
+mzFileType <- function(paths) {
+    result <- character(length(paths))
+
+    idx <- grepl("([Cc][Dd][Ff]$)|([Nn][Cc]$)", paths)
+    result[idx] <- "netCDF"
+
+    idx <- grepl("([Mm][Zz])?[Xx][Mm][Ll]$", paths)
+    result[idx] <- "mzXML"
+
+    idx <- grepl("[Mm][Zz][Dd][Aa][Tt][Aa]$", paths)
+    result[idx] <- "mzData"
+
+    idx <- grepl("[Mm][Zz][Mm][Ll]$", paths)
+    result[idx] <- cvTerm("MS", "MS:1000584", "Proteomics Standards Inititative mzML file format", "mzML file")
+
+    result
+}
+
+## paths <- c("bla.cdf", "foo.nc", "blub.mzdata", "blub.mzXML", "blub.XmL",
+##            "foo/bar.bar/baz.mzML", "mzData/careful.mzML")
+## cbind(paths, mzFileType(paths))
+
+
 mzTabHeader <- function(mztab, version, mode, type, description, xset) {
     runs <- filepaths(xset)
     names(runs) <- paste("ms_run[", 1:length(runs), "]-location", sep="")
+
+
+    samples <- paste("sample[", 1:length(runs), "]", sep="")
+    names(samples) <- paste("assay[", 1:length(runs), "]-sample_ref", sep="")
+    
+    sampleDesc <- sampnames(xset)
+    names(sampleDesc) <- paste("sample[", 1:length(runs), "]-description", sep="")    
+    filetypes <- mzFileType(runs)
+    names(runs) <- paste("ms_run[", 1:length(filetypes), "]-format", sep="")
 
     assays <- paste("ms_run[", seq(along=runs), "]", sep="")
     names(assays) <- paste("assay[", seq(along=runs), "]-ms_run_ref", sep="")
 
     variableAssays <- unlist(tapply(seq(along=sampclass(xset)), sampclass(xset), function(x)
-                                    paste(paste("assay[",x,"]", sep=""), collapse="-")))
+                                    paste(paste("assay[",x,"]", sep=""), collapse=",")))
     names(variableAssays) <- paste("study_variable[", seq(along=variableAssays), "]-assay_refs", sep="")
     
     variableDescriptions <- unique(as.character(sampclass(xset)))
@@ -32,6 +80,10 @@ mzTabHeader <- function(mztab, version, mode, type, description, xset) {
                                                     "mzTab-type"=type,
                                                     "description"=description)))
     mztab <- rbind.ragged(mztab, mzTabAddTagValue("MTD", runs))
+
+    mztab <- rbind.ragged(mztab, mzTabAddTagValue("MTD", samples))
+    mztab <- rbind.ragged(mztab, mzTabAddTagValue("MTD", sampleDesc))
+    
     mztab <- rbind.ragged(mztab, mzTabAddTagValue("MTD", assays))
     mztab <- rbind.ragged(mztab, mzTabAddTagValue("MTD", variableAssays))
     mztab <- rbind.ragged(mztab, mzTabAddTagValue("MTD", variableDescriptions))
@@ -88,6 +140,12 @@ mzTabAddSME <- function(mztab, xset) {
     
     result <-  as.data.frame(matrix(character(0), ncol=length(headers), nrow=nrow(g)))
     colnames(result) <- headers
+
+    # Calculate median/mean per study variable
+    #variableAssays <- unlist(tapply(seq(along=sampclass(xset)), sampclass(xset), function(x)
+    #                         paste(paste("assay[",x,"]", sep=""), collapse=",")))
+    #names(variableAssays) <- paste("study_variable[", seq(along=variableAssays), "]-assay_refs", sep="")
+    
     
     result[,"retention_time"] <- g[,"rtmed"]
     result[,"exp_mass_to_charge"] <- g[,"mzmed"]
@@ -118,10 +176,15 @@ mzt <- mzTabHeader(mzt,
                    description="faahKO",
                    xset=xs)
 mzt <- mzTabAddSME(mzt, xs)
-mzt
+#mzt
 
 writeMzTab(mzt, "faahKO.mzTab")
 
+#############################
+
+library(MSnbase)
+
+m <- readMzTabData("faahKO.mzTab")
 
 
 

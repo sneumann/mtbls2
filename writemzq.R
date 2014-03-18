@@ -268,11 +268,11 @@ buildMzq <- function(xs) {
     mzq$closeTag()                                        
 }
 
-
-library(faahKO)
-xsg <- fillPeaks(group(faahko))
-mzqFile <- paste(tempdir(), "faahKO.mzq.xml", sep="/")
-write.mzQuantML(xsg, mzqFile)
-v <- verify.mzQuantML(filename=mzqFile)
-
+if (FALSE) {
+  library(faahKO)
+  xsg <- fillPeaks(group(faahko))
+  mzqFile <- paste(tempdir(), "faahKO.mzq.xml", sep="/")
+  write.mzQuantML(xsg, mzqFile)
+  v <- verify.mzQuantML(filename=mzqFile)
+}
 
