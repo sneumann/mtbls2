@@ -91,8 +91,10 @@ average retention time and m/z values.
 
 In the following steps, we perform a grouping: because the UPLC system used here 
 has very stable retention times, we just use the retention time correction step 
-as quality control of the raw data. After that, 'fillPeaks()' will integrate 
-the raw data for those features, which were not detected in some of the samples.
+as quality control of the raw data. Alternatively, we can call group() and
+retcor() multiple times in order to correct grouping and RT iteratively.
+After that, 'fillPeaks()' will integrate the raw data for those features, which
+were not detected in some of the samples.
 
 ```{r retcor}
 mtbls2Set <- group(mtbls2Set, minfrac=1, bw=3)
