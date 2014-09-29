@@ -58,7 +58,7 @@ several tab-separated files. (One of) the assay files contains the column ``Raw 
 with the paths to the mass spectral raw data files in one of the above formats. 
 
 ```{r rISA, cache=TRUE}
-ISAmtbls2 <- readISAtab("/home/sneumann/tex/talks/conference/2014ebi/R/mtbls2")
+ISAmtbls2 <- readISAtab()
 a.filename <- ISAmtbls2["assay.filenames"][[1]]
 
 ````
