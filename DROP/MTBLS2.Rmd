@@ -416,7 +416,7 @@ maf <- data.frame(identifier = character(l),
 maf_character <- apply(maf, 2, as.character)
 
 write.table(maf_character, 
-            file="a_mtbl2_metabolite profiling_mass spectrometry_maf.csv",
+            file="/tmp/a_mtbl2_metabolite profiling_mass spectrometry_maf.csv",
             row.names=FALSE, col.names=all.colnames, 
             quote=TRUE, sep="\t", na="\"\"")
 

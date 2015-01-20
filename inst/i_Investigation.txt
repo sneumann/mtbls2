@@ -57,7 +57,7 @@ Study Factor Type	"genotype"	"replicate"
 Study Factor Type Term Accession Number	"efo:EFO_0000513"	"efo:EFO_0000683"
 Study Factor Type Term Source REF	"EFO"	"EFO"
 STUDY ASSAYS
-Study Assay File Name	"a_mtbl2_metabolite profiling_mass spectrometry.txt"
+Study Assay File Name	"a_mtbl2_metabolite_profiling_mass_spectrometry.txt"
 Study Assay Measurement Type	"metabolite profiling"
 Study Assay Measurement Type Term Accession Number	"0000366"
 Study Assay Measurement Type Term Source REF	"OBI"

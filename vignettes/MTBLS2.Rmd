@@ -1,0 +1,76 @@
+MTBLS2 Processing and Analysis with xcms, CAMERA and export to MetaboLights
+========================================================
+
+Kenneth Haug and Reza M. Salek and Pablo Conesa and
+  Janna Hastings and Paula de Matos and Mark Rijnbeek and
+  Tejasvi Mahendraker and Mark Williams and Steffen Neumann 
+  and Christoph Böttcher and
+  Philippe Rocca-Serra and Eamonn Maguire and Alejandra
+  González-Beltrán and Susanna-Assunta Sansone and Julian
+  L. Griffin and Christoph Steinbeck
+
+
+```{r LibraryPreload, message=FALSE}
+library(Risa)
+library(xcms)
+````
+
+## Introduction 
+
+Since 2006, the Bioconductor package [xcms](http://bioconductor.org/packages/release/bioc/html/xcms.html)
+[Smith 2006](http://www.ncbi.nlm.nih.gov/pubmed/16448051) provides a rich set of
+algorithms for mass spectrometry data processing. Typically, xcms will
+create an xcmsSet object from several raw data files in an assay,
+which are obtained from the samples in the study.  
+Allowed raw data formats are netCDF, mzData, mzXML and mzML.
+
+In this vignette, we demonstrate the processing of the MTBLS2 dataset, 
+which was described in [Neumann 2012](http://www.springerlink.com/content/l148485q75010101).
+
+## A few global settings
+
+A few things might be worth to define at the beginning of an analysis
+
+```{r settings} 
+## How many CPU cores has your machine (or cluster) ?
+nSlaves=4
+
+# prefilter <- c(3,200)  ## standard
+prefilter=c(6,750)      ## quick-run for debugging
+
+```
+
+## Raw data conversion
+
+This can be done with the vendor tools, or the open source proteowizard converter. The preferred format should be mzML or mzData/mzXML. An overview of formats (and problems) is available at the [xcms online](https://xcmsonline.scripps.edu/docs/fileformats.html) help pages.
+
+## R and ISAtab
+
+An ISAtab archive will contain the metadata description in 
+several tab-separated files. (One of) the assay files contains the column ``Raw Spectral Data File``
+with the paths to the mass spectral raw data files in one of the above formats. 
+
+```{r rISA, cache=TRUE}
+setwd(find.package("mtbls2"))
+
+ISAmtbls2 <- readISAtab()
+a.filename <- ISAmtbls2["assay.filenames"][[1]]
+
+````
+
+## ISAtab, Risa and xcms
+
+With the combination of [Risa](http://bioconductor.org/packages/release/bioc/html/Risa.html) and xcms, we can convert the MS raw data in an ISAtab archive into an xcmsSet:
+
+```{r PeakPicking, cache=TRUE, warning=FALSE}
+mtbls2Set <- processAssayXcmsSet(ISAmtbls2, a.filename,
+                                 method="centWave", prefilter=prefilter, 
+                                 snthr=25, ppm=25, 
+                                 peakwidth=c(5,12),
+                                 nSlaves=nSlaves)
+````
+
+```{r sessionInfo}
+sessionInfo()
+```
+

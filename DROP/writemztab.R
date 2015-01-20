@@ -7,8 +7,6 @@
 ## MTD	sample[1]-description	KO15
 ## MTD	assay[1]-sample_ref	sample[1]
 
-
-
 library(plyr) ## for rbind.fill
 library(faahKO)
 
@@ -181,10 +179,10 @@ mzt <- mzTabAddSME(mzt, xs)
 writeMzTab(mzt, "faahKO.mzTab")
 
 #############################
-
+if (FALSE) {
 library(MSnbase)
-
 m <- readMzTabData("faahKO.mzTab")
+}
 
 
 
