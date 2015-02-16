@@ -1,10 +1,11 @@
 ---
 title: "MTBLS2 Processing and Analysis with xcms, CAMERA and export to MetaboLights"
-author: "Steffen Neumann, Andrea Thum and Christoph Böttcher"
+author: "Steffen Neumann, Andrea Thum and Christoph Boettcher"
 date: "`r Sys.Date()`"
 bibliography:
   - ./MTBLS2.bib
 vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{MTBLS2 Processing and Analysis with xcms, CAMERA and export to MetaboLights}
 output:
@@ -25,7 +26,7 @@ library(CAMERA)
 library(pcaMethods)
 library(Heatplus)
 library(sp)
-
+library(IPO)
 ````
 
 ## Introduction 
@@ -129,6 +130,33 @@ boxplot(groupval(mtbls2Set, value="into")+1,
 
 [IPO: A Tool for automated Optimization of XCMS Parameters](https://github.com/glibiseller/IPO)
 
+```{r IPO}
+
+mzdatapath <- system.file("mzData", package = "mtbls2")
+
+## Use just one input file to reduce runtime. 
+## Full set *can* be used manually. 
+
+mzdatafiles <- list.files(mzdatapath, recursive = TRUE, full.names=TRUE)[3]
+
+peakpickingParameters <- getDefaultXcmsSetStartingParams('centWave')
+
+#setting levels for min_peakwidth to 10 and 20 (hence 15 is the center point)
+peakpickingParameters$min_peakwidth <- c(5,10) 
+peakpickingParameters$max_peakwidth <- c(15,25)
+
+peakpickingParameters$ppm <- c(30,50)
+
+resultPeakpicking <- optimizeXcmsSet(files=mzdatafiles, 
+                          params=peakpickingParameters, 
+                          nSlaves=nSlaves, subdir='rsmDirectory')
+resultPeakpicking
+
+```
+
+
+
+
 ## Data imputation
 
 After grouping, peaks might be missing/not found in some samples.
@@ -148,7 +176,7 @@ of features grouped across the samples.
 
 QC of mass accuracy and retention time consistency
 
-```{r fillPeaks}
+```{r plotQC}
 plotQC(mtbls2Set)
 ```
 
