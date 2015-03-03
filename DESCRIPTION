@@ -6,7 +6,7 @@ Title: Böttcher et al. (2004) Comparative LC/MS-based profiling of silver nitra
 Author: Steffen Neumann <sneumann@ipb-halle.de>
 Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
 Depends: R (>= 2.10)
-Suggests: xcms (>= 1.43.1), CAMERA, Risa, knitr, Heatplus, IPO, pcaMethods, sp
+Suggests: xcms (>= 1.43.1), Risa, knitr, Heatplus, pcaMethods, sp
 VignetteBuilder: knitr
 ZipData: no
 Description: Indole-3-acetaldoxime (IAOx) represents an early intermediate of the biosynthesis of a variety of indolic secondary metabolites including the phytoanticipin indol-3-ylmethyl glucosinolate and the phytoalexin camalexin (3-thiazol-2'-yl-indole). Arabidopsis thaliana cyp79B2 cyp79B3 double knockout plants are completely impaired in the conversion of tryptophan to indole-3-acetaldoxime and do not accumulate IAOx-derived metabolites any longer. Consequently, comparative analysis of wild-type and cyp79B2 cyp79B3 plant lines has the potential to explore the complete range of IAOx-derived indolic secondary metabolites.
