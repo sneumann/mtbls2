@@ -97,6 +97,9 @@ Formal class 'xcmsSet' [package "xcms"] with 12 slots
   \code{\link[xcms]{xcmsRaw}}
 }
 \examples{
+
+data(mtbls2)
+
 ## The directory with the mzData LC/MS files
 filepath <- file.path(find.package("mtbls2"), "mzData")
 filepath
@@ -107,9 +110,11 @@ if (require(xcms)) {
 ## xcmsSet Summary
 show(mtbls2Set)
 
+filepaths(mtbls2Set)[1]
+
 ## Access raw data file
-xr <- xcmsRaw(filepaths(mtbls2Set)[1], profmethod = "bin", profstep = 0.1)
-xr
+#xr <- xcmsRaw(filepaths(mtbls2Set)[1], profmethod = "bin", profstep = 0.1)
+#xr
 
 }
 }
