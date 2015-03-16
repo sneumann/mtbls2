@@ -6,7 +6,6 @@ bibliography:
   - ./MTBLS2.bib
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{MTBLS2 Processing and Analysis with xcms, CAMERA and export to MetaboLights}
 output:
   html_document:
@@ -47,7 +46,7 @@ A few things might be worth to define at the beginning of an analysis
 
 ```{r settings} 
 ## How many CPU cores has your machine (or cluster) ?
-nSlaves=4
+nSlaves=1
 
 # prefilter <- c(3,200)  ## standard
 prefilter=c(6,750)      ## quick-run for debugging
@@ -65,9 +64,8 @@ several tab-separated files. (One of) the assay files contains the column ``Raw 
 with the paths to the mass spectral raw data files in one of the above formats. 
 
 ```{r rISA, cache=TRUE}
-setwd(find.package("mtbls2"))
 
-ISAmtbls2 <- readISAtab()
+ISAmtbls2 <- readISAtab(find.package("mtbls2"))
 a.filename <- ISAmtbls2["assay.filenames"][[1]]
 
 ````
@@ -126,7 +124,7 @@ After grouping, peaks might be missing/not found in some samples.
 `fillPekas()` will impute them, using the consensus mz and RT 
 from the other samples. 
 
-```{r fillPeaks, message=FALSE, warning=FALSE, results='hide' }
+```{r fillPeaks }
 mtbls2Set <- fillPeaks(mtbls2Set, nSlaves=nSlaves)
 ```
 
