@@ -63,7 +63,7 @@ An ISAtab archive will contain the metadata description in
 several tab-separated files. (One of) the assay files contains the column ``Raw Spectral Data File``
 with the paths to the mass spectral raw data files in one of the above formats. 
 
-```{r rISA, cache=TRUE}
+```{r rISA}
 
 ISAmtbls2 <- readISAtab(find.package("mtbls2"))
 a.filename <- ISAmtbls2["assay.filenames"][[1]]
@@ -74,7 +74,7 @@ a.filename <- ISAmtbls2["assay.filenames"][[1]]
 
 With the combination of [Risa](http://bioconductor.org/packages/release/bioc/html/Risa.html) and xcms, we can convert the MS raw data in an ISAtab archive into an xcmsSet:
 
-```{r PeakPicking, cache=TRUE, warning=FALSE}
+```{r PeakPicking, warning=FALSE}
 mtbls2Set <- processAssayXcmsSet(ISAmtbls2, a.filename,
                                  method="centWave", prefilter=prefilter, 
                                  snthr=25, ppm=25, 
