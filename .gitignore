@@ -1,6 +1,11 @@
+mtbls2.Rproj
 .Rproj.user
 .Rhistory
 .RData
 cache
 *~
 mtbls2diffreport*
+vignettes/MTBLS2.html
+vignettes/a_mtbl2_metabolite_profiling_mass_spectrometry.txt
+vignettes/interestingPspec.pdf
+
