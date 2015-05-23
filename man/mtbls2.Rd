@@ -113,9 +113,11 @@ show(mtbls2Set)
 filepaths(mtbls2Set)[1]
 
 ## Access raw data file
-#xr <- xcmsRaw(filepaths(mtbls2Set)[1], profmethod = "bin", profstep = 0.1)
-#xr
 
+\dontrun{
+xr <- xcmsRaw(filepaths(mtbls2Set)[1], profmethod = "bin", profstep = 0.1)
+xr
+}
 }
 }
 \keyword{datasets}
