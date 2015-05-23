@@ -1,6 +1,6 @@
 Package: mtbls2
-Version: 0.99.6
-Date: 2015-05-23
+Version: 0.99.7
+Date: 2015-05-24
 Encoding: UTF-8 
 Title: Böttcher et al. (2004) Comparative LC/MS-based profiling of
     silver nitrate-treated Arabidopsis thaliana leaves of wild-type
@@ -21,8 +21,8 @@ Description: Indole-3-acetaldoxime (IAOx) represents an early
     IAOx-derived metabolites any longer. Consequently, comparative
     analysis of wild-type and cyp79B2 cyp79B3 plant lines has the
     potential to explore the complete range of IAOx-derived indolic
-    secondary metabolites.  biocViews: ExperimentData,
-    MassSpectrometry, Metabolomics
+    secondary metabolites.  
+biocViews: ExperimentData, MassSpectrometry, Metabolomics
 License: CC0
 URL: http://www.ebi.ac.uk/metabolights/MTBLS2, https://github.com/sneumann/mtbls2
 
