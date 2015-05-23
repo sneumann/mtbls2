@@ -1,11 +1,10 @@
 ---
-title: "MTBLS2 Processing and Analysis with xcms, CAMERA and export to MetaboLights"
+title: "MTBLS2 Processing and Analysis with xcms and CAMERA and export to MetaboLights"
 author: "Steffen Neumann, Andrea Thum and Christoph Boettcher"
 date: "`r Sys.Date()`"
 bibliography:
   - ./MTBLS2.bib
 vignette: >
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{MTBLS2 Processing and Analysis with xcms, CAMERA and export to MetaboLights}
 output:
@@ -24,9 +23,6 @@ library(Risa)
 library(xcms)
 library(CAMERA)
 library(pcaMethods)
-library(Heatplus)
-library(sp)
-library(IPO)
 ````
 
 ## Introduction 
@@ -68,9 +64,8 @@ several tab-separated files. (One of) the assay files contains the column ``Raw 
 with the paths to the mass spectral raw data files in one of the above formats. 
 
 ```{r rISA, cache=TRUE}
-setwd(find.package("mtbls2"))
 
-ISAmtbls2 <- readISAtab()
+ISAmtbls2 <- readISAtab(find.package("mtbls2"))
 a.filename <- ISAmtbls2["assay.filenames"][[1]]
 
 ````
@@ -123,47 +118,13 @@ boxplot(groupval(mtbls2Set, value="into")+1,
         log="y", las=2)
 ``` 
 
-## How to optimize xcms Parameters ?
-
-[Strategy for Optimizing LC-MS Data Processing in Metabolomics: A Design of Experiments Approach](http://pubs.acs.org/doi/abs/10.1021/ac301482k)
-
-
-[IPO: A Tool for automated Optimization of XCMS Parameters](https://github.com/glibiseller/IPO)
-
-```{r IPO}
-
-mzdatapath <- system.file("mzData", package = "mtbls2")
-
-## Use just one input file to reduce runtime. 
-## Full set *can* be used manually. 
-
-mzdatafiles <- list.files(mzdatapath, recursive = TRUE, full.names=TRUE)[3]
-
-peakpickingParameters <- getDefaultXcmsSetStartingParams('centWave')
-
-#setting levels for min_peakwidth to 10 and 20 (hence 15 is the center point)
-peakpickingParameters$min_peakwidth <- c(5,10) 
-peakpickingParameters$max_peakwidth <- c(15,25)
-
-peakpickingParameters$ppm <- c(30,50)
-
-resultPeakpicking <- optimizeXcmsSet(files=mzdatafiles, 
-                          params=peakpickingParameters, 
-                          nSlaves=nSlaves, subdir='rsmDirectory')
-resultPeakpicking
-
-```
-
-
-
-
 ## Data imputation
 
 After grouping, peaks might be missing/not found in some samples.
 `fillPekas()` will impute them, using the consensus mz and RT 
 from the other samples. 
 
-```{r fillPeaks, message=FALSE, warning=FALSE, results='hide' }
+```{r fillPeaks }
 mtbls2Set <- fillPeaks(mtbls2Set, nSlaves=nSlaves)
 ```
 
@@ -172,7 +133,7 @@ which were detected (or imputed) across the samples. The dimensionality is M * N
 where M denotes the number of samples in the assay, and N the number
 of features grouped across the samples. 
 
-## QC with heatmap and PCA
+## QC with some diagnostic plots
 
 QC of mass accuracy and retention time consistency
 
@@ -181,7 +142,7 @@ plotQC(mtbls2Set)
 ```
 
 
-## QC with heatmap and PCA
+## QC with PCA
 
 In addition to the boxplot for QC, we can also check a hierarchical clustering 
 and the PCA of the samples. 
@@ -193,10 +154,6 @@ data <- log(groupval(mtbls2Set, value="into")+1)
 pca.result <- pca(data, nPcs=3)
 plotPcs(pca.result, type="loadings", 
         col=as.numeric(sampclass(mtbls2Set))+1)
-
-## For readable heatmaps, 
-data <- data[apply(data, MAR=1, FUN=sd) > sdThresh,]
-heatmap_2(data, scale = "none", col=bpy.colors(100), legend=2)
 
 ```
 
@@ -260,43 +217,10 @@ o <- order(interestingPspec[,"pvalue"])
 
 pdf("interestingPspec.pdf")
 dummy <- lapply(interestingPspec[o[1:40], "pcgroup"],
-                function(x) {plotPsSpectrum(an, pspec=x, maxlabel=5)})
+                function(x) {suppressWarnings(plotPsSpectrum(an, pspec=x, maxlabel=5))})
 dev.off()
 
 ```
-
-
-## Retention time outlier visualisation 
-
-Sometimes, especially with larger sample sets, the standard `retcor()` will complain with "Too few peak groups, reverting to linear method" or "Not enough well behaved peak groups even for linear smoothing of retention times". There are several possible reasons why this can happen.
-
-The underlying `group()` was probably not performed with a large enough bw param, e.g. UPLC parameters used for an HPLC setup. For large sample sets (way more than one hundred) you can increase the `retcor()` parameters `missing` and `extra`, which allows more peaks to be considered "well behaved". The `retcor(method="obiwarp")` method does not rely one such peak groups, and uses raw spectra correlation. It creates an xcmsSet with corrected retention times.
-
-```{r retentionTimeOutlier }
-    # Check RMSD of retention time deviation
-     xs <- mtbls2Set
-     xs <- retcor(xs)
-
-     rmsd <- mapply(function(raw, corrected) sqrt(sum( (raw-corrected)**2) ),
-                    xs@rt$raw, xs@rt$corrected)
-    names(rmsd) <- sampnames(xs)
-  plot(rmsd, xaxt="n", las=1)
-  axis(1, at=1:length(rmsd), labels=names(rmsd), las=2)
-```
-
-In addition, it is even possible to cluster the samples w.r.t. their retention time profiles, which can discriminate between samples with the same RMSD in different areas of the gradient:
-
-
-```{r retentionTimeOutlierClustering}
-     minlength <- min(sapply(xs@rt$raw, length ))
-     devs <- sapply(1:length(xs@rt$corrected),
-                    function(x) { (xs@rt$raw[[x]]-xs@rt$corrected[[x]])[1:minlength] })
-     colnames(devs) <- sampnames(xs)
-     ddevs <- dist(t(devs))
-     hdevs <- hclust(ddevs)
-     plot(hdevs)
-```
-
 
 ## R, ISAtab, xcms and CAMERA revisited
 
