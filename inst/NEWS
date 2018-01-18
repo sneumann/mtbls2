@@ -1,0 +1,14 @@
+CHANGES IN VERSION 0.99.10
+-------------------------
+
+BUG FIXES:
++ Fixed BioC Views, added MetaboLights accession to Title.
+
+CHANGES IN VERSION 0.99.9
+-------------------------
+
+BUG FIXES:
++ Fixed writing the output at the end of the vignette to a temporary file
+
+
+

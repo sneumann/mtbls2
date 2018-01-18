@@ -46,7 +46,7 @@ A few things might be worth to define at the beginning of an analysis
 
 ```{r settings} 
 ## How many CPU cores has your machine (or cluster) ?
-nSlaves=4
+nSlaves=1
 
 # prefilter <- c(3,200)  ## standard
 prefilter=c(6,750)      ## quick-run for debugging
@@ -298,13 +298,21 @@ maf <- data.frame(identifier = character(l),
 maf_character <- apply(maf, 2, as.character)
 
 write.table(maf_character, 
+<<<<<<< HEAD
             file="/tmp/a_mtbl2_metabolite profiling_mass spectrometry_maf.csv",
+=======
+            file=paste(tempdir(), "/a_mtbl2_metabolite profiling_mass spectrometry_maf.csv", sep=""),
+>>>>>>> 0bc895091920d43fa5760673d860b30efb74ee2d
             row.names=FALSE, col.names=all.colnames, 
             quote=TRUE, sep="\t", na="\"\"")
 
 ISAmtbls2 <- updateAssayMetadata(ISAmtbls2, a.filename,
              "Metabolite Assignment File",
+<<<<<<< HEAD
              "a_mtbl2_metabolite profiling_mass spectrometry_maf.csv")
+=======
+	     paste(tempdir(), "/a_mtbl2_metabolite profiling_mass spectrometry_maf.csv", sep=""))
+>>>>>>> 0bc895091920d43fa5760673d860b30efb74ee2d
 
 write.assay.file(ISAmtbls2, a.filename)
 
