@@ -1,1 +1,3 @@
 mtbls2.Rproj
+^.*\.Rproj$
+^\.Rproj\.user$

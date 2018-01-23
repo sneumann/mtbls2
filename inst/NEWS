@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.9.1
+-------------------------
+
++ Add vignette based on xcms3 new interface, bump minimum xcms version to 3.0.0
+
 CHANGES IN VERSION 0.99.10
 -------------------------
 

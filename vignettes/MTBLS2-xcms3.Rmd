@@ -45,12 +45,9 @@ which was described in [Neumann 2012](http://www.springerlink.com/content/l14848
 A few things might be worth to define at the beginning of an analysis
 
 ```{r settings} 
-## How many CPU cores has your machine (or cluster) ?
-nSlaves=1
-
 # prefilter <- c(3,200)  ## standard
 prefilter=c(6,750)      ## quick-run for debugging
-
+nSlaves=4
 ```
 
 ## Raw data conversion
@@ -68,6 +65,9 @@ with the paths to the mass spectral raw data files in one of the above formats.
 ISAmtbls2 <- readISAtab(find.package("mtbls2"))
 a.filename <- ISAmtbls2["assay.filenames"][[1]]
 
+msfiles <- getAssayRawDataFilenames(ISAmtbls2@assay.tabs[[1]], full.path = TRUE)[,1]
+adf <- getAnnotatedDataFrameAssay(ISAmtbls2, assay.filename = a.filename)
+
 ````
 
 ## ISAtab, Risa and xcms
@@ -75,18 +75,29 @@ a.filename <- ISAmtbls2["assay.filenames"][[1]]
 With the combination of [Risa](http://bioconductor.org/packages/release/bioc/html/Risa.html) and xcms, we can convert the MS raw data in an ISAtab archive into an xcmsSet:
 
 ```{r PeakPicking, cache=TRUE, warning=FALSE}
-mtbls2Set <- processAssayXcmsSet(ISAmtbls2, a.filename,
-                                 method="centWave", prefilter=prefilter, 
-                                 snthr=25, ppm=25, 
-                                 peakwidth=c(5,12),
-                                 nSlaves=nSlaves)
+
+cwp <- CentWaveParam(ppm = 25, peakwidth = c(20, 50), snthresh = 10,
+  prefilter = c(3, 100), mzCenterFun = "wMean", integrate = 1L,
+  mzdiff = -0.001, fitgauss = FALSE, noise = 0, verboseColumns = FALSE,
+  roiList = list(), firstBaselineCheck = TRUE, roiScales = numeric())
+
+raw_data <- readMSData(msfiles, mode = "onDisk")
+
+## Perform the peak detection using the settings defined above.
+mtbls2 <- findChromPeaks(raw_data, param = cwp, BPPARAM = bpparam())
+
+pData(mtbls2) <- pData(adf)
+          
+
+head(chromPeaks(mtbls2))
+
 ````
 
 
 The result is the same type of xcmsSet object:
 
 ```{r xcmsSet}
-show(mtbls2Set)
+show(mtbls2)
 ``` 
 
 Several options exist to
@@ -102,8 +113,25 @@ as quality control of the raw data. After that, 'fillPeaks()' will integrate
 the raw data for those features, which were not detected in some of the samples.
 
 ```{r retcor}
-mtbls2Set <- group(mtbls2Set, minfrac=1, bw=3)
-retcor(mtbls2Set, plottype="mdevden")
+
+## Perform the peak grouping with default settings:
+pdp <- PeakDensityParam(sampleGroups = as.integer(interaction(pData(mtbls2), drop=TRUE)))
+
+mtbls2grouped <- groupChromPeaks(mtbls2, pdp)
+
+pgp <- PeakGroupsParam(minFraction = 1, extraPeaks = 1, smooth = "loess",
+  span = 0.2, family = "gaussian")
+
+mtbls2groupedretcor <- adjustRtime(mtbls2grouped, param = pgp)
+
+## Visualize the impact of the alignment. We show both versions of the plot,
+## with the raw retention times on the x-axis (top) and with the adjusted
+## retention times (bottom).
+par(mfrow = c(2, 1))
+plotAdjustedRtime(mtbls2groupedretcor, adjusted = FALSE)
+grid()
+plotAdjustedRtime(mtbls2groupedretcor)
+grid()
 
 ```
 
@@ -113,8 +141,8 @@ A first QC step is the visual inspection of intensities across the samples.
 Alternatively to a boxplot, one could also create histograms/density plots.
 
 ```{r QCintensity}
-boxplot(groupval(mtbls2Set, value="into")+1, 
-        col=as.numeric(sampclass(mtbls2Set))+1, 
+boxplot(featureValues(mtbls2grouped, value="into") +1, 
+        #col=as.numeric(sampclass(mtbls2Set))+1, 
         log="y", las=2)
 ``` 
 
@@ -125,7 +153,9 @@ After grouping, peaks might be missing/not found in some samples.
 from the other samples. 
 
 ```{r fillPeaks }
-mtbls2Set <- fillPeaks(mtbls2Set, nSlaves=nSlaves)
+
+mtbls2groupedFilled <- fillChromPeaks(mtbls2grouped)
+
 ```
 
 The final xcmsSet represents a rectangular matrix of mass spectral features,
@@ -138,7 +168,7 @@ of features grouped across the samples.
 QC of mass accuracy and retention time consistency
 
 ```{r plotQC}
-plotQC(mtbls2Set)
+#plotQC(mtbls2Set)
 ```
 
 
@@ -149,11 +179,12 @@ and the PCA of the samples.
 
 ```{r QCPCA, fig.show='hold'}
 sdThresh <- 4.0 ## Filter low-standard deviation rows for plot
-data <- log(groupval(mtbls2Set, value="into")+1)
+data <- log(featureValues(mtbls2groupedFilled))+1
 
 pca.result <- pca(data, nPcs=3)
 plotPcs(pca.result, type="loadings", 
-        col=as.numeric(sampclass(mtbls2Set))+1)
+        #col=as.numeric(sampclass(mtbls2Set))+1
+        )
 
 ```
 
@@ -161,6 +192,16 @@ plotPcs(pca.result, type="loadings",
 
 ```{r CAMERA, warning=FALSE, results='hide'}
 
+## Since CAMERA has not yet been ported to XCMSnExp,
+## we need to convert to xcmsSet. Note that 
+## the conversion only makes sense for somple XCMSnSets, 
+## without e.g. MS level filtering (where CAMERA would then 
+## extract the wrong )
+mtbls2Set <- as(mtbls2groupedFilled, "xcmsSet")
+mtbls2Set <- fillPeaks(mtbls2Set)
+##
+## Now do the normal CAMERA workflow:
+##
 an <- xsAnnotate(mtbls2Set,
                  sample=seq(1,length(sampnames(mtbls2Set))),
                  nSlaves=nSlaves)
@@ -193,6 +234,7 @@ an <- findAdducts(an,
 
 ## Diffreport
 ```{r diffreport}
+
 dr <- diffreport(mtbls2Set, sortpval=FALSE, filebase="mtbls2diffreport", eicmax=20 )
 cspl <- getPeaklist(an)
 
