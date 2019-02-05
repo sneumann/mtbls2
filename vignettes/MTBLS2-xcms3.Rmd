@@ -6,17 +6,12 @@ bibliography:
   - ./MTBLS2.bib
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{MTBLS2 Processing and Analysis with xcms, CAMERA and export to MetaboLights}
+  %\VignetteIndexEntry{MTBLS2 Processing and Analysis with xcms3, CAMERA and export to MetaboLights}
 output:
   html_document:
     theme: united	
     toc: true
 ---
-
-<!--
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteIndexEntry{MTBLS2}
--->
 
 ```{r LibraryPreload, message=FALSE}
 library(Risa)
