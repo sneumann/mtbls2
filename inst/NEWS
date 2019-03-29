@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.13.1
+-------------------------
+
++ filePaths of raw files are now patched to match the location 
+  of the installed mtbls2 package upon onAttach(), to be compliant 
+  with the staged-install approach
+
 CHANGES IN VERSION 1.9.1
 -------------------------
 
