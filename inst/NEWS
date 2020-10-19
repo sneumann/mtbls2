@@ -1,3 +1,13 @@
+CHANGES IN VERSION 1.19.2
+-------------------------
+
++ Re-enable parallel processing after Johannes Rainer re-enabled the functions in xcms 3.11.8
+
+CHANGES IN VERSION 1.19.1
+-------------------------
+
++ disable parallel processing for compatibility with deprecated xcmsClusterApply
+
 CHANGES IN VERSION 1.13.1
 -------------------------
 

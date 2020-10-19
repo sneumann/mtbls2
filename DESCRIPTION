@@ -1,6 +1,6 @@
 Package: mtbls2
-Version: 1.19.0
-Date: 2019-03-29
+Version: 1.19.2
+Date: 2020-10-19
 Encoding: UTF-8
 Title: MetaboLights MTBLS2: Comparative LC/MS-based profiling of silver
         nitrate-treated Arabidopsis thaliana leaves of wild-type and
@@ -8,7 +8,7 @@ Title: MetaboLights MTBLS2: Comparative LC/MS-based profiling of silver
 Author: Steffen Neumann <sneumann@ipb-halle.de>
 Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
 Depends: R (>= 2.10)
-Suggests: xcms (>= 3.0.0), CAMERA, Risa (>= 1.0.0), knitr, Heatplus,
+Suggests: xcms (>= 3.11.8), CAMERA, Risa (>= 1.0.0), knitr, Heatplus,
         pcaMethods, sp
 VignetteBuilder: knitr
 ZipData: no
