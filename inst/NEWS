@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.19.1
+-------------------------
+
++ disable parallel processing for compatibility with removed xcmsPapply
+
 CHANGES IN VERSION 1.19.2
 -------------------------
 

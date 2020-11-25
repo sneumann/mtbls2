@@ -42,7 +42,7 @@ A few things might be worth to define at the beginning of an analysis
 ```{r settings} 
 # prefilter <- c(3,200)  ## standard
 prefilter=c(6,750)      ## quick-run for debugging
-nSlaves=4
+nSlaves=1
 ```
 
 ## Raw data conversion
