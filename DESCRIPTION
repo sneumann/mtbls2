@@ -1,6 +1,6 @@
 Package: mtbls2
-Version: 1.21.1
-Date: 2020-11-25
+Version: 1.21.2
+Date: 2021-04-21
 Encoding: UTF-8
 Title: MetaboLights MTBLS2: Comparative LC/MS-based profiling of silver
         nitrate-treated Arabidopsis thaliana leaves of wild-type and
@@ -8,8 +8,8 @@ Title: MetaboLights MTBLS2: Comparative LC/MS-based profiling of silver
 Author: Steffen Neumann <sneumann@ipb-halle.de>
 Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
 Depends: R (>= 2.10)
-Suggests: xcms (>= 3.11.8), CAMERA, Risa (>= 1.0.0), knitr, Heatplus,
-        pcaMethods, sp
+Suggests: xcms (>= 3.13.8), CAMERA, Risa (>= 1.0.0), knitr, Heatplus,
+        pcaMethods, sp, rmkarkdown
 VignetteBuilder: knitr
 ZipData: no
 Description: Indole-3-acetaldoxime (IAOx) represents an early

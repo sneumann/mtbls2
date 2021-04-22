@@ -163,7 +163,7 @@ of features grouped across the samples.
 QC of mass accuracy and retention time consistency
 
 ```{r plotQC}
-#plotQC(mtbls2Set)
+plotQC(mtbls2grouped)
 ```
 
 
