@@ -9,7 +9,7 @@ Author: Steffen Neumann <sneumann@ipb-halle.de>
 Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
 Depends: R (>= 2.10)
 Suggests: xcms (>= 3.13.8), CAMERA, Risa (>= 1.0.0), knitr, Heatplus,
-        pcaMethods, sp, rmkarkdown
+        pcaMethods, sp, rmarkdown
 VignetteBuilder: knitr
 ZipData: no
 Description: Indole-3-acetaldoxime (IAOx) represents an early
