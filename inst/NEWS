@@ -1,3 +1,9 @@
+CHANGES IN VERSION 1.23.2
+-------------------------
+
++ switch to mzML files in the ISA-Tab metadata
++ temporarily disable the vignette for the old xcms interface causing a build failure
+
 CHANGES IN VERSION 1.23.1
 -------------------------
 
