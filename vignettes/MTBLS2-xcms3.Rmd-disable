@@ -1,0 +1,354 @@
+---
+title: "MTBLS2 Processing and Analysis with xcms and CAMERA and export to MetaboLights"
+author: "Steffen Neumann, Andrea Thum and Christoph Boettcher"
+date: "`r Sys.Date()`"
+bibliography:
+  - ./MTBLS2.bib
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{MTBLS2 Processing and Analysis with xcms3, CAMERA and export to MetaboLights}
+output:
+  html_document:
+    theme: united	
+    toc: true
+---
+
+```{r LibraryPreload, message=FALSE}
+library(Risa)
+library(xcms)
+library(CAMERA)
+library(pcaMethods)
+````
+
+## Introduction 
+
+Indole-3-acetaldoxime (IAOx) represents an early intermediate of the biosynthesis of a variety of indolic secondary metabolites including the phytoanticipin indol-3-ylmethyl glucosinolate and the phytoalexin camalexin (3-thiazol-2'-yl-indole). Arabidopsis thaliana cyp79B2 cyp79B3 double knockout plants are completely impaired in the conversion of tryptophan to indole-3-acetaldoxime and do not accumulate IAOx-derived metabolites any longer. Consequently, comparative analysis of wild-type and cyp79B2 cyp79B3 plant lines has the potential to explore the complete range of IAOx-derived indolic secondary metabolites.
+
+
+Since 2006, the Bioconductor package [xcms](http://bioconductor.org/packages/release/bioc/html/xcms.html)
+[(Smith et al, 2006)](http://www.ncbi.nlm.nih.gov/pubmed/16448051) provides a rich set of
+algorithms for mass spectrometry data processing. Typically, xcms will
+create an xcmsSet object from several raw data files in an assay,
+which are obtained from the samples in the study.  
+Allowed raw data formats are netCDF, mzData, mzXML and mzML.
+
+In this vignette, we demonstrate the processing of the MTBLS2 dataset, 
+which was described in [Neumann 2012](http://www.springerlink.com/content/l148485q75010101).
+
+## A few global settings
+
+A few things might be worth to define at the beginning of an analysis
+
+```{r settings} 
+# prefilter <- c(3,200)  ## standard
+prefilter=c(6,750)      ## quick-run for debugging
+nSlaves=1
+```
+
+## Raw data conversion
+
+This can be done with the vendor tools, or the open source proteowizard converter. The preferred format should be mzML or mzData/mzXML. An overview of formats (and problems) is available at the [xcms online](https://xcmsonline.scripps.edu/docs/fileformats.html) help pages.
+
+## R and ISAtab
+
+An ISAtab archive will contain the metadata description in 
+several tab-separated files. (One of) the assay files contains the column ``Raw Spectral Data File``
+with the paths to the mass spectral raw data files in one of the above formats. 
+
+```{r rISA, cache=TRUE}
+
+ISAmtbls2 <- readISAtab(find.package("mtbls2"))
+a.filename <- ISAmtbls2["assay.filenames"][[1]]
+
+msfiles <- getAssayRawDataFilenames(ISAmtbls2@assay.tabs[[1]], full.path = TRUE)[,1]
+adf <- getAnnotatedDataFrameAssay(ISAmtbls2, assay.filename = a.filename)
+
+````
+
+## ISAtab, Risa and xcms
+
+With the combination of [Risa](http://bioconductor.org/packages/release/bioc/html/Risa.html) and xcms, we can convert the MS raw data in an ISAtab archive into an xcmsSet:
+
+```{r PeakPicking, cache=TRUE, warning=FALSE}
+
+cwp <- CentWaveParam(ppm = 25, peakwidth = c(20, 50), snthresh = 10,
+  prefilter = c(3, 100), mzCenterFun = "wMean", integrate = 1L,
+  mzdiff = -0.001, fitgauss = FALSE, noise = 0, verboseColumns = FALSE,
+  roiList = list(), firstBaselineCheck = TRUE, roiScales = numeric())
+
+raw_data <- readMSData(msfiles, mode = "onDisk")
+
+## Perform the peak detection using the settings defined above.
+mtbls2 <- findChromPeaks(raw_data, param = cwp, BPPARAM = bpparam())
+
+pData(mtbls2) <- pData(adf)
+          
+
+head(chromPeaks(mtbls2))
+
+````
+
+
+The result is the same type of xcmsSet object:
+
+```{r xcmsSet}
+show(mtbls2)
+``` 
+
+Several options exist to
+quantify the individual intensities. For each feature,
+additional attributes are available, such as the minimum/maximum and
+average retention time and m/z values. 
+
+## Grouping and Retention time correction
+
+In the following steps, we perform a grouping: because the UPLC system used here 
+has very stable retention times, we just use the retention time correction step 
+as quality control of the raw data. After that, 'fillPeaks()' will integrate 
+the raw data for those features, which were not detected in some of the samples.
+
+```{r retcor}
+
+## Perform the peak grouping with default settings:
+pdp <- PeakDensityParam(sampleGroups = as.integer(interaction(pData(mtbls2), drop=TRUE)))
+
+mtbls2grouped <- groupChromPeaks(mtbls2, pdp)
+
+pgp <- PeakGroupsParam(minFraction = 1, extraPeaks = 1, smooth = "loess",
+  span = 0.2, family = "gaussian")
+
+mtbls2groupedretcor <- adjustRtime(mtbls2grouped, param = pgp)
+
+## Visualize the impact of the alignment. We show both versions of the plot,
+## with the raw retention times on the x-axis (top) and with the adjusted
+## retention times (bottom).
+par(mfrow = c(2, 1))
+plotAdjustedRtime(mtbls2groupedretcor, adjusted = FALSE)
+grid()
+plotAdjustedRtime(mtbls2groupedretcor)
+grid()
+
+```
+
+## QC on peaks picked
+
+A first QC step is the visual inspection of intensities across the samples.
+Alternatively to a boxplot, one could also create histograms/density plots.
+
+```{r QCintensity}
+boxplot(featureValues(mtbls2grouped, value="into") +1, 
+        #col=as.numeric(sampclass(mtbls2Set))+1, 
+        log="y", las=2)
+``` 
+
+## Data imputation
+
+After grouping, peaks might be missing/not found in some samples.
+`fillPekas()` will impute them, using the consensus mz and RT 
+from the other samples. 
+
+```{r fillPeaks }
+
+mtbls2groupedFilled <- fillChromPeaks(mtbls2grouped)
+
+```
+
+The final xcmsSet represents a rectangular matrix of mass spectral features,
+which were detected (or imputed) across the samples. The dimensionality is M * N,
+where M denotes the number of samples in the assay, and N the number
+of features grouped across the samples. 
+
+## QC with some diagnostic plots
+
+QC of mass accuracy and retention time consistency
+
+```{r plotQC}
+plotQC(mtbls2grouped)
+```
+
+
+## QC with PCA
+
+In addition to the boxplot for QC, we can also check a hierarchical clustering 
+and the PCA of the samples. 
+
+```{r QCPCA, fig.show='hold'}
+sdThresh <- 4.0 ## Filter low-standard deviation rows for plot
+data <- log(featureValues(mtbls2groupedFilled))+1
+
+pca.result <- pca(data, nPcs=3)
+plotPcs(pca.result, type="loadings", 
+        #col=as.numeric(sampclass(mtbls2Set))+1
+        )
+
+```
+
+## Annotated diffreport
+
+```{r CAMERA, warning=FALSE, results='hide'}
+
+## Since CAMERA has not yet been ported to XCMSnExp,
+## we need to convert to xcmsSet. Note that 
+## the conversion only makes sense for somple XCMSnSets, 
+## without e.g. MS level filtering (where CAMERA would then 
+## extract the wrong )
+mtbls2Set <- as(mtbls2groupedFilled, "xcmsSet")
+mtbls2Set <- fillPeaks(mtbls2Set)
+##
+## Now do the normal CAMERA workflow:
+##
+an <- xsAnnotate(mtbls2Set,
+                 sample=seq(1,length(sampnames(mtbls2Set))),
+                 nSlaves=nSlaves)
+
+an <- groupFWHM(an)
+an <- findIsotopes(an)  # optional but recommended.
+an <- groupCorr(an,
+                graphMethod="lpc",
+                calcIso = TRUE,
+                calcCiS = TRUE,
+                calcCaS = TRUE,
+                cor_eic_th=0.5)
+
+## Setup ruleSet
+rs <- new("ruleSet")
+
+rs@ionlistfile <- file.path(find.package("mtbls2"), "lists","ions.csv")
+rs@neutraladditionfile <- file.path(find.package("mtbls2"), "lists","neutraladdition.csv")
+rs@neutrallossfile <- file.path(find.package("mtbls2"), "lists","neutralloss.csv")
+
+rs <- readLists(rs)
+rs <- setDefaultParams(rs)
+rs <- generateRules(rs)
+
+an <- findAdducts(an,
+                  rules=rs@rules,
+                  polarity="positive")
+  
+```
+
+## Diffreport
+```{r diffreport}
+
+dr <- diffreport(mtbls2Set, sortpval=FALSE, filebase="mtbls2diffreport", eicmax=20 )
+cspl <- getPeaklist(an)
+
+annotatedDiffreport <- cbind(dr, cspl)
+
+```
+
+## Combine diffreport and CAMERA spectra
+
+```{r diffreportPspec}
+interestingPspec <- tapply(seq(1, nrow(annotatedDiffreport)),
+                               INDEX=annotatedDiffreport[,"pcgroup"],
+                               FUN=function(x, a) {m <- median(annotatedDiffreport[x, "pvalue"]);
+                                                   p <- max(annotatedDiffreport[x, "pcgroup"]);
+                                                   as.numeric(c(pvalue=m,pcgroup=p))},
+                               annotatedDiffreport)
+
+interestingPspec <- do.call(rbind, interestingPspec)
+colnames(interestingPspec) <- c("pvalue", "pcgroup") 
+
+o <- order(interestingPspec[,"pvalue"])
+
+pdf("interestingPspec.pdf")
+dummy <- lapply(interestingPspec[o[1:40], "pcgroup"],
+                function(x) {suppressWarnings(plotPsSpectrum(an, pspec=x, maxlabel=5))})
+dev.off()
+
+```
+
+## R, ISAtab, xcms and CAMERA revisited
+
+These attributes and the intensity matrix could already be exported to conform 
+to the specification for the ``metabolite assignment file'' 
+in the mzTab format used in MetaboLights. Currently, this functionality is not included 
+in xcms. A prototype snippet is the following:
+
+``` {r assembleMAF}
+
+pl <- annotatedDiffreport 
+
+charge <- sapply(an@isotopes, function(x) {
+  ifelse( length(x) > 0, x$charge, NA) 
+})
+abundance <- groupval(an@xcmsSet, value="into")
+
+
+##
+## load ISA assay files
+## 
+
+a.samples <- ISAmtbls2["samples.per.assay.filename"][[ a.filename ]]
+
+##
+## These columns are defined by mzTab
+##
+
+maf.std.colnames <- c("identifier", "chemical_formula", "description",
+"mass_to_charge", "fragmentation", "charge", "retention_time",
+"taxid", "species", "database", "database_version", "reliability",
+"uri", "search_engine", "search_engine_score", "modifications",
+"smallmolecule_abundance_sub", "smallmolecule_abundance_stdev_sub",
+"smallmolecule_abundance_std_error_sub")
+
+##
+## Plus the columns for the sample intensities
+##
+all.colnames <- c(maf.std.colnames, a.samples)
+
+##
+## Now assemble new maf
+##
+
+l <- nrow(pl)
+
+maf <- data.frame(identifier = character(l), 
+                  chemical_formula = character(l), 
+                  description = character(l), 
+                  mass_to_charge = pl$mz, 
+                  fragmentation = character(l), 
+                  charge = charge, 
+                  retention_time = pl$rt, 
+                  taxid = character(l), 
+                  species = character(l), 
+                  database = character(l), 
+                  database_version = character(l), 
+                  reliability = character(l), 
+                  uri = character(l), 
+                  search_engine = character(l), 
+                  search_engine_score = character(l),
+                  modifications = character(l), 
+                  smallmolecule_abundance_sub = character(l),
+                  smallmolecule_abundance_stdev_sub = character(l), 
+                  smallmolecule_abundance_std_error_sub = character(l),
+                  abundance, stringsAsFactors=FALSE)
+```
+
+```{r exportMAF}
+
+##
+## Make sure maf table is quoted properly, 
+## and add to the ISAmtbls2 assay file.
+## 
+maf_character <- apply(maf, 2, as.character)
+
+write.table(maf_character, 
+            file=paste(tempdir(), "/a_mtbl2_metabolite profiling_mass spectrometry_maf.csv", sep=""),
+            row.names=FALSE, col.names=all.colnames, 
+            quote=TRUE, sep="\t", na="\"\"")
+
+ISAmtbls2 <- updateAssayMetadata(ISAmtbls2, a.filename,
+             "Metabolite Assignment File",
+	     paste(tempdir(), "/a_mtbl2_metabolite profiling_mass spectrometry_maf.csv", sep=""))
+
+write.assay.file(ISAmtbls2, a.filename)
+
+```
+
+
+```{r sessionInfo}
+sessionInfo()
+```
+
